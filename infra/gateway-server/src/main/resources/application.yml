@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: gateway-server
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        # MAIN-SERVICE маршруты
+        - id: main-service-admin
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/**
+
+        - id: main-service-user
+          uri: lb://main-service
+          predicates:
+            - Path=/users/**
+
+        - id: main-service-categories
+          uri: lb://main-service
+          predicates:
+            - Path=/categories/**
+
+        - id: main-service-events
+          uri: lb://main-service
+          predicates:
+            - Path=/events/**
+
+        - id: main-service-compilations
+          uri: lb://main-service
+          predicates:
+            - Path=/compilations/**
+
+        - id: main-service-main
+          uri: lb://main-service
+          predicates:
+            - Path=/main/**
+
+        # STATS-SERVER маршруты
+        - id: stats-server-hit
+          uri: lb://stats-server
+          predicates:
+            - Path=/hit
+
+        - id: stats-server-stats
+          uri: lb://stats-server
+          predicates:
+            - Path=/stats
+
+    config:
+      import: "configserver:"
+      fail-fast: true
+      discovery:
+        enabled: true
+        service-id: config-server
+      retry:
+        use-random-policy: true
+        max-interval: 6000
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.uuid}
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+

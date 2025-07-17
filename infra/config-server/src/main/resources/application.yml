@@ -1,0 +1,21 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: native  # активируем использование локальных файлов, а не Git
+
+  cloud:
+    config:
+      server:
+        native:
+          search-locations:
+            - classpath:/config/{application}
+            - classpath:/config/common  # общий конфиг, например, для всех сервисов
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
