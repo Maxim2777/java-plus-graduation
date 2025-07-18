@@ -24,7 +24,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>ru.practicum.ewm.discovery.DiscoveryServerApplication</mainClass>
+                    <mainClass>ru.practicum.discovery.DiscoveryServerApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>
