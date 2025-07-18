@@ -10,22 +10,22 @@ DROP TABLE IF EXISTS comments CASCADE;
 -- Таблица пользователей
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE
 );
 
 -- Таблица категорий (для связей с событиями)
 CREATE TABLE IF NOT EXISTS categories (
     id BIGSERIAL PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE
+    name VARCHAR(255) NOT NULL UNIQUE
 );
 
 -- Таблица событий
 CREATE TABLE IF NOT EXISTS events (
     id BIGSERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-    annotation TEXT NOT NULL,
-    description TEXT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    annotation VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
     category_id BIGINT NOT NULL,
     event_date TIMESTAMP NOT NULL,
     created_on TIMESTAMP NOT NULL,
@@ -36,14 +36,14 @@ CREATE TABLE IF NOT EXISTS events (
     paid BOOLEAN NOT NULL,
     participant_limit INT DEFAULT 0,
     request_moderation BOOLEAN DEFAULT TRUE,
-    state TEXT NOT NULL
+    state VARCHAR(255) NOT NULL
 );
 
 -- Таблица заявок на участие
 CREATE TABLE IF NOT EXISTS participation_requests (
     id BIGSERIAL PRIMARY KEY,
     created TIMESTAMP NOT NULL,
-    status TEXT NOT NULL,
+    status VARCHAR(255) NOT NULL,
     requester_id BIGINT NOT NULL,
     event_id BIGINT NOT NULL
 );
@@ -53,14 +53,14 @@ CREATE TABLE IF NOT EXISTS comments (
     id BIGSERIAL PRIMARY KEY,
     author_id BIGINT NOT NULL,
     event_id BIGINT NOT NULL,
-    text TEXT NOT NULL,
+    text VARCHAR(255) NOT NULL,
     created_on TIMESTAMP NOT NULL
 );
 
 -- Таблица подборок событий
 CREATE TABLE IF NOT EXISTS compilations (
     id BIGSERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
+    title VARCHAR(255) NOT NULL,
     pinned BOOLEAN DEFAULT FALSE
 );
 
