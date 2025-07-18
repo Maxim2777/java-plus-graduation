@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: main-service
+
+  config:
+    import: 'configserver:'
+
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        initial-interval: 1000     # первая попытка через 1 секунду
+        multiplier: 1.5            # с каждой попыткой интервал увеличивается в 1.5 раза
+        max-interval: 5000         # максимум 5 секунд между попытками
+        max-attempts: 10           # не более 10 попыток
+      discovery:
+        enabled: true
+        service-id: config-server
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
+
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname:localhost}:${eureka.instance.port:8761}/eureka/
