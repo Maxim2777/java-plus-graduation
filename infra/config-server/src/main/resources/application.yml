@@ -13,7 +13,6 @@ spring:
         native:
           search-locations:
             - classpath:/config/{application}
-            - classpath:/config/common  # общий конфиг, например, для всех сервисов
 
 eureka:
   client:

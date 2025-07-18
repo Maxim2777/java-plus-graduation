@@ -5,7 +5,16 @@ spring:
   application:
     name: stats-server
 
+  sql:
+    init:
+      mode: always
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
   datasource:
+    driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:6541/stats-db
     username: stat
     password: stat
@@ -14,3 +23,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    org.springframework.boot.sql.init: DEBUG
+    org.springframework.jdbc.datasource.init.ScriptUtils: DEBUG
