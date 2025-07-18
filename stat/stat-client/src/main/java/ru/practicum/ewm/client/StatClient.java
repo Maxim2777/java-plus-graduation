@@ -1,22 +1,34 @@
 package ru.practicum.ewm.client;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.ewm.dto.EndpointHitDto;
 import ru.practicum.ewm.dto.ViewStatsDto;
-import org.springframework.web.client.RestClient;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
+@RequiredArgsConstructor
 public class StatClient {
-    private final RestClient restClient;
 
-    public StatClient(String baseUrl) {
-        this.restClient = RestClient.builder().baseUrl(baseUrl).build();
+    private final DiscoveryClient discoveryClient;
+    private final String serviceId = "stats-server"; // имя из spring.application.name
+
+    private RestClient restClient() {
+        ServiceInstance instance = discoveryClient.getInstances(serviceId).stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Stats server not available"));
+
+        URI baseUri = URI.create("http://" + instance.getHost() + ":" + instance.getPort());
+        return RestClient.builder().baseUrl(baseUri.toString()).build();
     }
 
     public void sendHit(EndpointHitDto hitDto) {
-        restClient.post()
+        restClient().post()
                 .uri("/hit")
                 .body(hitDto)
                 .retrieve()
@@ -39,7 +51,7 @@ public class StatClient {
 
         String uri = uriBuilder.build().toUriString();
 
-        List<ViewStatsDto> response = restClient.get()
+        List<ViewStatsDto> response = restClient().get()
                 .uri(uri)
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
