@@ -4,16 +4,14 @@ server:
 spring:
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/ewm-db
+    url: jdbc:postgresql://localhost:6542/ewm-db
     username: stat
     password: stat
 
   sql:
     init:
-      mode: never
+      mode: always
 
   jpa:
     hibernate:
       ddl-auto: none
-
-statsServiceId: stats-server
