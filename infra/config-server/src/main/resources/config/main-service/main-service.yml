@@ -6,9 +6,10 @@ spring:
     name: main-service
 
   datasource:
-    url: jdbc:postgresql://localhost:6542/ewm-db
-    username: stat
-    password: stat
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
 
 eureka:
   client:
