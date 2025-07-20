@@ -4,7 +4,7 @@ services:
     image: postgres:16.1
     container_name: stats-db
     ports:
-      - "6541:5432"
+      - "6541:5431"
     environment:
       - POSTGRES_USER=stat
       - POSTGRES_PASSWORD=stat
