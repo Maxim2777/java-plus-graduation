@@ -3,8 +3,8 @@ package ru.practicum.ewm.client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.client.RestClient;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.ewm.dto.EndpointHitDto;
 import ru.practicum.ewm.dto.ViewStatsDto;
@@ -16,23 +16,33 @@ import java.util.List;
 public class StatClient {
 
     private final DiscoveryClient discoveryClient;
-    private final String serviceId = "stats-server"; // имя из spring.application.name
+    private final RetryTemplate retryTemplate;
+    private final String statsServiceId = "stats-server";
+    private final WebClient webClient = WebClient.create();
 
-    private RestClient restClient() {
-        ServiceInstance instance = discoveryClient.getInstances(serviceId).stream()
+    private ServiceInstance getInstance() {
+        return discoveryClient
+                .getInstances(statsServiceId)
+                .stream()
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Stats server not available"));
+                .orElseThrow(() ->
+                        new RuntimeException("stats-server not found via Discovery"));
+    }
 
-        URI baseUri = URI.create("http://" + instance.getHost() + ":" + instance.getPort());
-        return RestClient.builder().baseUrl(baseUri.toString()).build();
+    private URI makeUri(String path) {
+        ServiceInstance instance = retryTemplate.execute(ctx -> getInstance());
+        return URI.create("http://" + instance.getHost() + ":" + instance.getPort() + path);
     }
 
     public void sendHit(EndpointHitDto hitDto) {
-        restClient().post()
-                .uri("/hit")
-                .body(hitDto)
+        URI uri = makeUri("/hit");
+
+        webClient.post()
+                .uri(uri)
+                .bodyValue(hitDto)
                 .retrieve()
-                .toBodilessEntity();
+                .toBodilessEntity()
+                .block();
     }
 
     public List<ViewStatsDto> getStats(String start, String end, List<String> uris, boolean unique) {
@@ -49,13 +59,15 @@ public class StatClient {
             uriBuilder.queryParam("uris", uris.toArray());
         }
 
-        String uri = uriBuilder.build().toUriString();
+        String pathWithParams = uriBuilder.build().encode().toUriString();
+        URI uri = makeUri(pathWithParams);
 
-        List<ViewStatsDto> response = restClient().get()
+        ViewStatsDto[] response = webClient.get()
                 .uri(uri)
                 .retrieve()
-                .body(new ParameterizedTypeReference<>() {});
+                .bodyToMono(ViewStatsDto[].class)
+                .block();
 
-        return response != null ? response : List.of();
+        return response != null ? List.of(response) : List.of();
     }
 }
