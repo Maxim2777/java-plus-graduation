@@ -76,7 +76,7 @@
         <!-- Клиент сервиса статистики -->
         <dependency>
             <groupId>ru.practicum</groupId>
-            <artifactId>stat-client</artifactId>
+            <artifactId>stats-client</artifactId>
         </dependency>
 
         <!-- Lombok -->
