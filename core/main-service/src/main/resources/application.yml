@@ -12,10 +12,8 @@ spring:
         enabled: true
         service-id: config-server
       retry:
-        max-attempts: 3         # ← до 3 попыток
-        initial-interval: 15000   # ← 1.5 сек между попытками
-        multiplier: 1.2          # ← каждый раз чуть больше
-        max-interval: 30000       # ← максимум 30 секунд
+        use-random-policy: true
+        max-interval: 6000
 
 eureka:
   instance:
