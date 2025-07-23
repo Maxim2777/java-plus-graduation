@@ -21,12 +21,15 @@
 	<properties>
 		<java.version>21</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<spring-cloud-dependencies.version>2023.0.3</spring-cloud-dependencies.version>
 	</properties>
 
 	<!-- Добавляем модули проекта -->
 	<modules>
-		<module>main-service</module>
-		<module>stat</module>
+		<module>stats</module>
+        <module>infra</module>
+		<module>core</module>
 	</modules>
 
 	<build>
@@ -202,17 +205,26 @@
 
 	<dependencyManagement>
 		<dependencies>
+
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud-dependencies.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
 			<!-- Версия для stat-client -->
 			<dependency>
 				<groupId>ru.practicum</groupId>
-				<artifactId>stat-client</artifactId>
+				<artifactId>stats-client</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<!-- Версия для stat-dto -->
 			<dependency>
 				<groupId>ru.practicum</groupId>
-				<artifactId>stat-dto</artifactId>
+				<artifactId>stats-dto</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
