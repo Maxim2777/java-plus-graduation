@@ -25,9 +25,8 @@ public class ParticipationRequest {
     @Enumerated(EnumType.STRING)
     private ParticipationRequestStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "requester_id", nullable = false)
-    private User requester;
+    @Column(name = "requester_id", nullable = false)
+    private Long requesterId;
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)

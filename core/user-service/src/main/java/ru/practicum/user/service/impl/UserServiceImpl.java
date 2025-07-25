@@ -1,18 +1,17 @@
-package ru.practicum.ewm.main.service.impl;
+package ru.practicum.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.main.dto.NewUserRequest;
-import ru.practicum.ewm.main.dto.UserDto;
-import ru.practicum.ewm.main.dto.params.UserParamsAdmin;
-import ru.practicum.ewm.main.exception.ConflictException;
-import ru.practicum.ewm.main.exception.NotFoundException;
-import ru.practicum.ewm.main.mapper.UserMapper;
-import ru.practicum.ewm.main.model.User;
-import ru.practicum.ewm.main.repository.UserRepository;
-import ru.practicum.ewm.main.service.UserService;
+import ru.practicum.user.dto.NewUserRequest;
+import ru.practicum.user.dto.UserDto;
+import ru.practicum.user.exception.ConflictException;
+import ru.practicum.user.exception.NotFoundException;
+import ru.practicum.user.mapper.UserMapper;
+import ru.practicum.user.model.User;
+import ru.practicum.user.repository.UserRepository;
+import ru.practicum.user.service.UserService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,11 +35,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsers(UserParamsAdmin param) {
-        List<User> users = (param.getIds() != null && !param.getIds().isEmpty())
-                ? userRepository.findAllByIdIn(param.getIds())
-                : userRepository.findAll(PageRequest.of(param.getFrom() / param.getSize(),
-                param.getSize())).getContent();
+    public List<UserDto> getUsers(List<Long> ids, int from, int size) {
+        List<User> users;
+
+        if (ids != null && !ids.isEmpty()) {
+            users = userRepository.findAllByIdIn(ids);
+        } else {
+            users = userRepository.findAll(PageRequest.of(from / size, size)).getContent();
+        }
 
         return users.stream()
                 .map(UserMapper::toDto)
@@ -53,5 +55,12 @@ public class UserServiceImpl implements UserService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("The user with id: " + userId + " not found!"));
         userRepository.deleteById(userId);
+    }
+
+    @Override
+    public UserDto getUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
+        return UserMapper.toDto(user);
     }
 }

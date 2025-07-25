@@ -16,12 +16,11 @@ import ru.practicum.ewm.main.exception.ValidationException;
 import ru.practicum.ewm.main.mapper.CommentMapper;
 import ru.practicum.ewm.main.model.Comment;
 import ru.practicum.ewm.main.model.Event;
-import ru.practicum.ewm.main.model.User;
 import ru.practicum.ewm.main.model.enums.EventState;
 import ru.practicum.ewm.main.repository.CommentRepository;
 import ru.practicum.ewm.main.repository.EventRepository;
-import ru.practicum.ewm.main.repository.UserRepository;
 import ru.practicum.ewm.main.service.CommentService;
+import ru.practicum.ewm.main.client.UserClient;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -35,32 +34,42 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;
+    private final UserClient userClient;
 
     @Override
     public CommentDto createComment(Long userId, NewCommentDto dto) {
-        User user = getUserById(userId);
+        // Проверка существования пользователя через Feign-клиент
+        userClient.getUserById(userId);
 
+        // Получение события
         Event event = getEventById(dto.getEventId());
 
+        // Валидация
         if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new ValidationException("Can't comment unpublished events");
         }
 
-        Comment comment = CommentMapper.toEntity(dto, user, event);
+        // Создание комментария
+        Comment comment = CommentMapper.toEntity(dto, userId, event);
+
+        // Сохранение и возврат DTO
         return CommentMapper.toDto(commentRepository.save(comment));
     }
 
     @Override
     public void deleteOwnComment(Long userId, Long commentId) {
-        User user = getUserById(userId);
+        // Опционально: проверка, существует ли пользователь
+        userClient.getUserById(userId);
 
+        // Получение комментария
         Comment comment = getCommentById(commentId);
 
-        if (!comment.getAuthor().getId().equals(user.getId())) {
+        // Проверка авторства
+        if (!comment.getAuthorId().equals(userId)) {
             throw new ConflictException("User can delete only own comments");
         }
 
+        // Удаление
         commentRepository.deleteById(commentId);
     }
 
@@ -78,7 +87,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public List<CommentDto> getUserComments(Long userId, int from, int size) {
-        getUserById(userId); // Проверка на существование пользователя
+        userClient.getUserById(userId); // Проверка на существование пользователя
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("createdOn").descending());
         return commentRepository.findByAuthor_Id(userId, pageable).stream()
@@ -100,7 +109,7 @@ public class CommentServiceImpl implements CommentService {
 
         // Проверка: существует ли автор (если указан)
         if (params.getAuthorId() != null) {
-            getUserById(params.getAuthorId());
+            userClient.getUserById(params.getAuthorId());
         }
 
         // Проверка: существует ли событие (если указано)
@@ -140,21 +149,16 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto updateOwnComment(Long userId, Long commentId, UpdateCommentDto updateDto) {
-        getUserById(userId); // проверка, что пользователь существует
+        userClient.getUserById(userId); // проверка, что пользователь существует
 
-        Comment comment = getCommentById(commentId); // переиспользуем метод
+        Comment comment = getCommentById(commentId);
 
-        if (!comment.getAuthor().getId().equals(userId)) {
+        if (!comment.getAuthorId().equals(userId)) {
             throw new ValidationException("User can update only their own comment");
         }
 
         comment.setText(updateDto.getText());
         return CommentMapper.toDto(commentRepository.save(comment));
-    }
-
-    private User getUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
     }
 
     private Event getEventById(Long eventId) {

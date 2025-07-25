@@ -21,11 +21,11 @@ public class EventMapper {
                 .paid(dto.isPaid())
                 .participantLimit(dto.getParticipantLimit())
                 .requestModeration(dto.isRequestModeration())
-                .initiator(new User(initiatorId, null, null))
+                .initiatorId(initiatorId)
                 .build();
     }
 
-    public static EventShortDto toShortDto(Event event, long confirmed, long views) {
+    public static EventShortDto toShortDto(Event event, String initiatorName, long confirmed, long views) {
         return EventShortDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -33,13 +33,13 @@ public class EventMapper {
                 .category(new CategoryDto(event.getCategory().getId(), event.getCategory().getName()))
                 .paid(event.isPaid())
                 .eventDate(event.getEventDate())
-                .initiator(new UserShortDto(event.getInitiator().getId(), event.getInitiator().getName()))
+                .initiator(new UserShortDto(event.getInitiatorId(), initiatorName))
                 .confirmedRequests(confirmed)
                 .views(views)
                 .build();
     }
 
-    public static EventFullDto entityToFullDto(Event event, long confirmed, long views) {
+    public static EventFullDto entityToFullDto(Event event, String initiatorName, long confirmed, long views) {
         return EventFullDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -54,28 +54,25 @@ public class EventMapper {
                 .requestModeration(event.isRequestModeration())
                 .state(event.getState())
                 .location(new LocationDto(event.getLocation().getLat(), event.getLocation().getLon()))
-                .initiator(new UserShortDto(event.getInitiator().getId(), event.getInitiator().getName()))
+                .initiator(new UserShortDto(event.getInitiatorId(), initiatorName))
                 .confirmedRequests(confirmed)
                 .views(views)
                 .build();
     }
 
-    public static EventShortDto toEventShortDtoFromEvent(Event event) {
+    public static EventShortDto toEventShortDtoFromEvent(Event event, String initiatorName) {
         CategoryDto category = new CategoryDto(event.getCategory().getId(), "Category Name");
-        UserShortDto initiator = new UserShortDto(event.getInitiator().getId(), "User Name");
-        long confirmedRequests = 0L;
-        long views = 0L;
 
         return EventShortDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(category)
-                .confirmedRequests(confirmedRequests)
+                .confirmedRequests(0L)
                 .eventDate(event.getEventDate())
-                .initiator(initiator)
+                .initiator(new UserShortDto(event.getInitiatorId(), initiatorName))
                 .paid(event.isPaid())
                 .title(event.getTitle())
-                .views(views)
+                .views(0L)
                 .build();
     }
 }

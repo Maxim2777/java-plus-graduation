@@ -10,7 +10,7 @@ public class ParticipationRequestMapper {
                 .id(request.getId())
                 .created(request.getCreated())
                 .event(request.getEvent().getId())
-                .requester(request.getRequester().getId())
+                .requester(request.getRequesterId()) // изменено
                 .status(request.getStatus())
                 .build();
     }

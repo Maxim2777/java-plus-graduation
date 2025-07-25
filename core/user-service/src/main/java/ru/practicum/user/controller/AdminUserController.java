@@ -1,14 +1,13 @@
-package ru.practicum.ewm.main.controller;
+package ru.practicum.user.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.main.dto.NewUserRequest;
-import ru.practicum.ewm.main.dto.UserDto;
-import ru.practicum.ewm.main.dto.params.UserParamsAdmin;
-import ru.practicum.ewm.main.service.UserService;
+import ru.practicum.user.dto.NewUserRequest;
+import ru.practicum.user.dto.UserDto;
+import ru.practicum.user.service.UserService;
 
 import java.util.List;
 
@@ -27,9 +26,12 @@ public class AdminUserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAll(@ModelAttribute UserParamsAdmin param) {
-        log.info("AdminUserController - Getting all users with params: {}", param);
-        return ResponseEntity.ok(userService.getUsers(param));
+    public ResponseEntity<List<UserDto>> getAll(
+            @RequestParam(required = false) List<Long> ids,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("AdminUserController - Getting users with ids={}, from={}, size={}", ids, from, size);
+        return ResponseEntity.ok(userService.getUsers(ids, from, size));
     }
 
     @DeleteMapping("/{userId}")
@@ -37,5 +39,11 @@ public class AdminUserController {
         log.info("AdminUserController - Deleting user: {}", userId);
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUser(@PathVariable Long userId) {
+        log.info("AdminUserController - Getting user with id={}", userId);
+        return ResponseEntity.ok(userService.getUser(userId));
     }
 }

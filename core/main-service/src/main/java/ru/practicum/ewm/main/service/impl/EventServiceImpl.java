@@ -28,7 +28,6 @@ import ru.practicum.ewm.main.model.enums.RequestStatus;
 import ru.practicum.ewm.main.repository.CategoryRepository;
 import ru.practicum.ewm.main.repository.EventRepository;
 import ru.practicum.ewm.main.repository.ParticipationRequestRepository;
-import ru.practicum.ewm.main.repository.UserRepository;
 import ru.practicum.ewm.main.service.EventService;
 
 import java.time.LocalDateTime;
