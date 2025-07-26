@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.ewm.client.StatClient;
 import ru.practicum.ewm.dto.EndpointHitDto;
 import ru.practicum.ewm.dto.ViewStatsDto;
+import ru.practicum.ewm.main.client.UserClient;
 import ru.practicum.ewm.main.dto.*;
 import ru.practicum.ewm.main.dto.params.EventParamsAdmin;
 import ru.practicum.ewm.main.dto.params.EventParamsPublic;
@@ -45,66 +46,61 @@ public class EventServiceImpl implements EventService {
     private final ParticipationRequestRepository requestRepository;
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;
+    private final UserClient userClient;
     private final StatClient statClient;
 
     // --- PRIVATE API ---
 
     @Override
     public List<EventShortDto> getUserEvents(Long userId, UserParamsAdmin params) {
-        int from = params.getFrom();
-        int size = params.getSize();
+        PageRequest page = PageRequest.of(params.getFrom() / params.getSize(), params.getSize());
 
-        PageRequest page = PageRequest.of(from / size, size);
-        getUserById(userId);
-
-        BooleanExpression byUserId = QEvent.event.initiator.id.eq(userId);
+        BooleanExpression byUserId = QEvent.event.initiatorId.eq(userId);
         List<Event> events = eventRepository.findAll(byUserId, page).getContent();
 
         Map<Long, Long> viewsMap = getViews(events);
-        Map<Long, Long> confrmedMap = getConfirmedRequests(events);
+        Map<Long, Long> confirmedMap = getConfirmedRequests(events);
+        String initiatorName = userClient.getUserById(userId).getName();
 
-        return events
-                .stream()
-                .map(event -> EventMapper
-                        .toShortDto(event, confrmedMap.get(event.getId()), viewsMap.get(event.getId())))
+        return events.stream()
+                .map(event -> EventMapper.toShortDto(event, initiatorName,
+                        confirmedMap.getOrDefault(event.getId(), 0L),
+                        viewsMap.getOrDefault(event.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
     @Override
     public EventFullDto getUserEventById(Long userId, Long eventId) {
-        getUserById(userId);
-
         Event event = getEventById(eventId);
 
-        if (!event.getInitiator().getId().equals(userId)) {
+        if (!event.getInitiatorId().equals(userId)) {
             throw new ConflictException("User is not the owner of this event");
         }
 
         Map<Long, Long> viewsMap = getViews(List.of(event));
-        Map<Long, Long> confrmedMap = getConfirmedRequests(List.of(event));
+        Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
+        String initiatorName = userClient.getUserById(userId).getName();
 
-        return EventMapper.entityToFullDto(event, confrmedMap.get(event.getId()), viewsMap.get(event.getId()));
+        return EventMapper.entityToFullDto(event, initiatorName,
+                confirmedMap.getOrDefault(event.getId(), 0L),
+                viewsMap.getOrDefault(event.getId(), 0L));
     }
 
     @Override
     @Transactional
     public EventFullDto createUserEvent(Long userId, NewEventDto dto) {
-        getUserById(userId);
+        if (dto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new ValidationException("The event date must be at least 2 hours from now");
+        }
 
         categoryRepository.findById(dto.getCategory())
-                .orElseThrow(() -> new NotFoundException("The category with id: " + dto.getCategory() + " not found!"));
-
-        if (dto.getEventDate().isBefore(LocalDateTime.now()) ||
-                !dto.getEventDate().isAfter(LocalDateTime.now().plusHours(2))) {
-            throw new ValidationException("The date and time of the event cannot be in the past " +
-                    "or earlier than two hours from now: " + dto.getEventDate());
-        }
+                .orElseThrow(() -> new NotFoundException("Category with id: " + dto.getCategory() + " not found!"));
 
         Event event = EventMapper.toEntity(dto, userId);
         Event savedEvent = eventRepository.save(event);
+        String initiatorName = userClient.getUserById(userId).getName();
 
-        return EventMapper.entityToFullDto(savedEvent, 0, 0);
+        return EventMapper.entityToFullDto(savedEvent, initiatorName, 0, 0);
     }
 
     @Override
@@ -112,14 +108,12 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest dto) {
         Event event = getEventById(eventId);
 
-        getUserById(userId);
-
-        if (!event.getInitiator().getId().equals(userId)) {
+        if (!event.getInitiatorId().equals(userId)) {
             throw new ConflictException("User is not the owner of this event");
         }
 
         if (event.getState().equals(EventState.PUBLISHED)) {
-            throw new ConflictException("A published event cannot be modified.");
+            throw new ConflictException("Published events cannot be modified");
         }
 
         if (dto.getTitle() != null) event.setTitle(dto.getTitle());
@@ -127,22 +121,20 @@ public class EventServiceImpl implements EventService {
         if (dto.getDescription() != null) event.setDescription(dto.getDescription());
 
         if (dto.getEventDate() != null) {
-            LocalDateTime newEventDate = LocalDateTime.parse(dto.getEventDate().replace(" ", "T"));
-            if (newEventDate.isBefore(LocalDateTime.now()) ||
-                    !newEventDate.isAfter(LocalDateTime.now().plusHours(2))) {
-                throw new ValidationException("The date and time of the event cannot be in the past " +
-                        "or earlier than two hours from now: " + dto.getEventDate());
+            LocalDateTime newDate = LocalDateTime.parse(dto.getEventDate().replace(" ", "T"));
+            if (newDate.isBefore(LocalDateTime.now().plusHours(2))) {
+                throw new ValidationException("Event date must be at least 2 hours in the future");
             }
-            event.setEventDate(newEventDate);
+            event.setEventDate(newDate);
         }
 
         if (dto.getPaid() != null) event.setPaid(dto.getPaid());
         if (dto.getParticipantLimit() != null) event.setParticipantLimit(dto.getParticipantLimit());
         if (dto.getRequestModeration() != null) event.setRequestModeration(dto.getRequestModeration());
+
         if (dto.getCategory() != null) {
             Category category = categoryRepository.findById(dto.getCategory())
-                    .orElseThrow(() -> new NotFoundException("The category with id: " + dto.getCategory() +
-                            " not found!"));
+                    .orElseThrow(() -> new NotFoundException("Category not found"));
             event.setCategory(category);
         }
 
@@ -152,12 +144,15 @@ public class EventServiceImpl implements EventService {
             event.setState(EventState.CANCELED);
         }
 
-        Map<Long, Long> viewsMap = getViews(List.of(event));
-        Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
-
         eventRepository.save(event);
 
-        return EventMapper.entityToFullDto(event, confirmedMap.get(event.getId()), viewsMap.get(event.getId()));
+        Map<Long, Long> viewsMap = getViews(List.of(event));
+        Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
+        String initiatorName = userClient.getUserById(userId).getName();
+
+        return EventMapper.entityToFullDto(event, initiatorName,
+                confirmedMap.getOrDefault(event.getId(), 0L),
+                viewsMap.getOrDefault(event.getId(), 0L));
     }
 
     @Override
@@ -177,7 +172,7 @@ public class EventServiceImpl implements EventService {
         Event event = getEventById(eventId);
         getUserById(userId);
 
-        if (!event.getInitiator().getId().equals(userId)) {
+        if (!event.getInitiatorId().equals(userId)) {
             throw new ConflictException("User is not the owner of this event");
         }
 
@@ -320,6 +315,7 @@ public class EventServiceImpl implements EventService {
                 .stream()
                 .map(e -> EventMapper.toShortDto(
                         e,
+                        userClient.getUserById(e.getInitiatorId()).getName(),
                         confirmedMap.getOrDefault(e.getId(), 0L),
                         viewsMap.getOrDefault(e.getId(), 0L)))
                 .collect(Collectors.toList());
@@ -360,6 +356,9 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> viewsMap = getViews(List.of(event));
         Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
 
+        // Получаем имя инициатора через userClient
+        String initiatorName = userClient.getUserById(event.getInitiatorId()).getName();
+
         statClient.sendHit(EndpointHitDto.builder()
                 .app("main-service")
                 .uri(request.getRequestURI())
@@ -367,8 +366,12 @@ public class EventServiceImpl implements EventService {
                 .timestamp(LocalDateTime.now())
                 .build());
 
-        return EventMapper.entityToFullDto(event,
-                confirmedMap.get(event.getId()), viewsMap.get(event.getId()));
+        return EventMapper.entityToFullDto(
+                event,
+                initiatorName,
+                confirmedMap.getOrDefault(event.getId(), 0L),
+                viewsMap.getOrDefault(event.getId(), 0L)
+        );
     }
 
     // --- ADMIN API ---
@@ -393,7 +396,7 @@ public class EventServiceImpl implements EventService {
             if (users.size() == 1 && users.getFirst() == 0L) {
                 throw new ValidationException("Incorrect list of category IDs: " + categories);
             }
-            where.and(event.initiator.id.in(users));
+            where.and(event.initiatorId.in(users));
         }
 
         if (categories != null && !categories.isEmpty()) {
@@ -423,10 +426,21 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> viewsMap = getViews(events);
         Map<Long, Long> confirmedMap = getConfirmedRequests(events);
+        Map<Long, String> initiatorNames = events.stream()
+                .map(Event::getInitiatorId)
+                .distinct()
+                .collect(Collectors.toMap(
+                        id -> id,
+                        id -> userClient.getUserById(id).getName()
+                ));
 
-        return events
-                .stream()
-                .map(e -> EventMapper.entityToFullDto(e, confirmedMap.get(e.getId()), viewsMap.get(e.getId())))
+        return events.stream()
+                .map(e -> EventMapper.entityToFullDto(
+                        e,
+                        initiatorNames.get(e.getInitiatorId()), // ✅
+                        confirmedMap.getOrDefault(e.getId(), 0L),
+                        viewsMap.getOrDefault(e.getId(), 0L)
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -476,9 +490,14 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> viewsMap = getViews(List.of(savedEvent));
         Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(savedEvent));
+        String initiatorName = userClient.getUserById(savedEvent.getInitiatorId()).getName();
 
-        return EventMapper
-                .entityToFullDto(event, confirmedMap.get(savedEvent.getId()), viewsMap.get(savedEvent.getId()));
+        return EventMapper.entityToFullDto(
+                savedEvent,
+                initiatorName,
+                confirmedMap.getOrDefault(savedEvent.getId(), 0L),
+                viewsMap.getOrDefault(savedEvent.getId(), 0L)
+        );
     }
 
     private Map<Long, Long> getViews(List<Event> events) {
@@ -537,7 +556,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private void getUserById(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("The user with id: " + userId + " not found!"));
+        userClient.getUserById(userId); // выбросит ошибку внутри, если пользователь не найден
     }
+
 }

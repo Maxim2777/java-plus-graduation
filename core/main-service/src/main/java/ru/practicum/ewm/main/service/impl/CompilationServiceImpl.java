@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.main.client.UserClient;
 import ru.practicum.ewm.main.dto.CompilationDto;
 import ru.practicum.ewm.main.dto.EventShortDto;
 import ru.practicum.ewm.main.dto.NewCompilationDto;
@@ -36,6 +37,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     final CompilationRepository compilationRepository;
     final EventRepository eventRepository;
+    private final UserClient userClient; // ← добавили
 
     @Override
     public List<CompilationDto> getCompilations(CompilationParamsPublic params) {
@@ -55,12 +57,15 @@ public class CompilationServiceImpl implements CompilationService {
         return compilationsPage.getContent().stream()
                 .map(compilation -> {
                     List<EventShortDto> eventShortDtos = compilation.getEvents().stream()
-                            .map(EventMapper::toEventShortDtoFromEvent)
-                            .collect(Collectors.toList());
+                            .map(event -> {
+                                String initiatorName = userClient.getUserById(event.getInitiatorId()).getName();
+                                return EventMapper.toEventShortDtoFromEvent(event, initiatorName);
+                            })
+                            .toList();
 
                     return CompilationMapper.toCompilationDtoFromCompilation(compilation, eventShortDtos);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -70,7 +75,10 @@ public class CompilationServiceImpl implements CompilationService {
                 .orElseThrow(() -> new NotFoundException(String.format("Compilation with id=%d not found", compId)));
 
         List<EventShortDto> eventShortDtos = compilation.getEvents().stream()
-                .map(EventMapper::toEventShortDtoFromEvent)
+                .map(event -> {
+                    String initiatorName = userClient.getUserById(event.getInitiatorId()).getName();
+                    return EventMapper.toEventShortDtoFromEvent(event, initiatorName);
+                })
                 .collect(Collectors.toList());
 
         return CompilationMapper.toCompilationDtoFromCompilation(compilation, eventShortDtos);
@@ -94,7 +102,12 @@ public class CompilationServiceImpl implements CompilationService {
 
         compilation = compilationRepository.save(compilation);
 
-        List<EventShortDto> eventShortDtos = compilation.getEvents().stream().map(EventMapper::toEventShortDtoFromEvent).toList();
+        List<EventShortDto> eventShortDtos = compilation.getEvents().stream()
+                .map(event -> {
+                    String initiatorName = userClient.getUserById(event.getInitiatorId()).getName();
+                    return EventMapper.toEventShortDtoFromEvent(event, initiatorName);
+                })
+                .toList();
 
         return CompilationMapper.toCompilationDtoFromCompilation(compilation, eventShortDtos);
     }
@@ -145,7 +158,10 @@ public class CompilationServiceImpl implements CompilationService {
         log.info("Updated fields for Compilation with id = {} : {}", compId, updatedFieldsLog);
 
         return CompilationMapper.toCompilationDtoFromCompilation(compilation, compilation.getEvents().stream()
-                .map(EventMapper::toEventShortDtoFromEvent)
+                .map(event -> {
+                    String initiatorName = userClient.getUserById(event.getInitiatorId()).getName();
+                    return EventMapper.toEventShortDtoFromEvent(event, initiatorName);
+                })
                 .toList());
     }
 

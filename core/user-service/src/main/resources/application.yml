@@ -6,7 +6,7 @@ spring:
     name: user-service
 
   datasource:
-    url: jdbc:postgresql://user-db:6542/ewm-db
+    url: jdbc:postgresql://localhost:6542/ewm-db
     username: stat
     password: stat
   jpa:
@@ -18,6 +18,6 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: http://localhost:8761/eureka/
   instance:
     prefer-ip-address: true

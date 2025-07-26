@@ -13,10 +13,10 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findByEvent_Id(Long eventId, Pageable pageable);
 
-    List<Comment> findByAuthor_Id(Long authorId, Pageable pageable);
+    List<Comment> findByAuthorId(Long authorId, Pageable pageable);
 
     @Query("SELECT c FROM Comment c " +
-            "WHERE (:authorId IS NULL OR c.author.id = :authorId) " +
+            "WHERE (:authorId IS NULL OR c.authorId = :authorId)" +
             "AND (:eventId IS NULL OR c.event.id = :eventId) " +
             "AND ((CAST(:rangeStart AS DATE) IS NULL ) OR c.createdOn >= :rangeStart) " +
             "AND ((CAST(:rangeEnd AS DATE) IS NULL ) OR c.createdOn <= :rangeEnd)")

@@ -90,7 +90,7 @@ public class CommentServiceImpl implements CommentService {
         userClient.getUserById(userId); // Проверка на существование пользователя
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("createdOn").descending());
-        return commentRepository.findByAuthor_Id(userId, pageable).stream()
+        return commentRepository.findByAuthorId(userId, pageable).stream()
                 .map(CommentMapper::toDto)
                 .collect(Collectors.toList());
     }
