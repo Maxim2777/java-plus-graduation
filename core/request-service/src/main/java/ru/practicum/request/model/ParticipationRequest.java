@@ -1,0 +1,34 @@
+package ru.practicum.request.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import ru.practicum.request.model.enums.ParticipationRequestStatus;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "participation_requests")
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ParticipationRequest {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private LocalDateTime created;
+
+    @Enumerated(EnumType.STRING)
+    private ParticipationRequestStatus status;
+
+    @Column(name = "requester_id", nullable = false)
+    private Long requesterId;
+
+    @ManyToOne
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;
+}

@@ -1,0 +1,96 @@
+package ru.practicum.request.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.request.client.UserClient;
+import ru.practicum.request.dto.ParticipationRequestDto;
+import ru.practicum.request.exception.ConflictException;
+import ru.practicum.request.exception.NotFoundException;
+import ru.practicum.request.mapper.ParticipationRequestMapper;
+import ru.practicum.request.model.enums.EventState;
+import ru.practicum.request.model.enums.ParticipationRequestStatus;
+import ru.practicum.request.repository.EventRepository;
+import ru.practicum.request.repository.ParticipationRequestRepository;
+import ru.practicum.request.service.RequestService;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class RequestServiceImpl implements RequestService {
+
+    private final ParticipationRequestRepository requestRepository;
+    private final EventRepository eventRepository;
+    private final UserClient userClient; // ⬅ добавили вместо userRepository
+
+    @Override
+    public List<ParticipationRequestDto> getUserRequests(Long userId) {
+        userClient.getUserById(userId); // Проверка, что пользователь существует
+        return requestRepository.findAllByRequesterId(userId).stream()
+                .map(ParticipationRequestMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public ParticipationRequestDto addRequest(Long requesterId, Long eventId) {
+        userClient.getUserById(requesterId); // Проверка, что пользователь существует
+        Event event = getEventById(eventId);
+
+        if (requestRepository.existsByRequesterIdAndEventId(requesterId, eventId)) {
+            throw new ConflictException("User already sent a request for this event.");
+        }
+
+        if (requesterId.equals(event.getInitiatorId())) {
+            throw new ConflictException("The event initiator cannot submit a participation request for their own event.");
+        }
+
+        if (!event.getState().equals(EventState.PUBLISHED)) {
+            throw new ConflictException("Participation in an unpublished event is not allowed.");
+        }
+
+        long confirmedRequests = requestRepository.countByEventIdAndStatus(eventId, ParticipationRequestStatus.CONFIRMED);
+
+        if (confirmedRequests >= event.getParticipantLimit() && event.getParticipantLimit() != 0) {
+            throw new ConflictException("The event has reached the participation request limit.");
+        }
+
+        ParticipationRequest request = ParticipationRequest.builder()
+                .requesterId(requesterId)
+                .event(event)
+                .created(LocalDateTime.now())
+                .status(ParticipationRequestStatus.PENDING)
+                .build();
+
+        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
+            request.setStatus(ParticipationRequestStatus.CONFIRMED);
+        }
+
+        return ParticipationRequestMapper.toDto(requestRepository.save(request));
+    }
+
+    @Override
+    @Transactional
+    public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
+        userClient.getUserById(userId); // Проверка, что пользователь существует
+
+        ParticipationRequest request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new NotFoundException("Request not found"));
+
+        if (!request.getRequesterId().equals(userId)) {
+            throw new ConflictException("User can cancel only their own requests.");
+        }
+
+        request.setStatus(ParticipationRequestStatus.CANCELED);
+        return ParticipationRequestMapper.toDto(requestRepository.save(request));
+    }
+
+    private Event getEventById(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event with id: " + eventId + " not found!"));
+    }
+}
