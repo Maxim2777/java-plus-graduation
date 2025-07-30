@@ -11,13 +11,13 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    List<Comment> findByEvent_Id(Long eventId, Pageable pageable);
+    List<Comment> findByEventId(Long eventId, Pageable pageable);
 
     List<Comment> findByAuthorId(Long authorId, Pageable pageable);
 
     @Query("SELECT c FROM Comment c " +
-            "WHERE (:authorId IS NULL OR c.authorId = :authorId)" +
-            "AND (:eventId IS NULL OR c.event.id = :eventId) " +
+            "WHERE (:authorId IS NULL OR c.authorId = :authorId) " +
+            "AND (:eventId IS NULL OR c.eventId = :eventId) " +
             "AND ((CAST(:rangeStart AS DATE) IS NULL ) OR c.createdOn >= :rangeStart) " +
             "AND ((CAST(:rangeEnd AS DATE) IS NULL ) OR c.createdOn <= :rangeEnd)")
     List<Comment> findByFilters(

@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.user.dto.NewUserRequest;
-import ru.practicum.user.dto.UserDto;
-import ru.practicum.user.dto.params.UserParamsAdmin;
+import ru.practicum.ewm.main.dto.NewUserRequest;
+import ru.practicum.ewm.main.dto.UserDto;
+import ru.practicum.ewm.main.dto.params.UserParamsAdmin;
 import ru.practicum.user.service.UserService;
 
 import java.util.List;

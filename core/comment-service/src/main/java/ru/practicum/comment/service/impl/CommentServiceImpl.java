@@ -6,10 +6,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.comment.dto.CommentDto;
-import ru.practicum.comment.dto.NewCommentDto;
-import ru.practicum.comment.dto.UpdateCommentDto;
-import ru.practicum.comment.dto.params.CommentSearchParamsAdmin;
+import ru.practicum.ewm.main.dto.CommentDto;
+import ru.practicum.ewm.main.dto.EventFullDto;
+import ru.practicum.ewm.main.dto.NewCommentDto;
+import ru.practicum.ewm.main.dto.UpdateCommentDto;
+import ru.practicum.ewm.main.dto.UserDto;
+import ru.practicum.ewm.main.dto.params.CommentSearchParamsAdmin;
 import ru.practicum.comment.exception.ConflictException;
 import ru.practicum.comment.exception.NotFoundException;
 import ru.practicum.comment.exception.ValidationException;
@@ -19,6 +21,7 @@ import ru.practicum.comment.repository.CommentRepository;
 import ru.practicum.comment.service.CommentService;
 import ru.practicum.ewm.main.client.PublicEventClient;
 import ru.practicum.ewm.main.client.UserClient;
+import ru.practicum.ewm.main.model.enums.EventState;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -31,16 +34,17 @@ import java.util.stream.Collectors;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
-    private final PublicEventClient eventClient;
+    private final PublicEventClient publicEventClient;
     private final UserClient userClient;
 
     @Override
+    @Transactional
     public CommentDto createComment(Long userId, NewCommentDto dto) {
-        userClient.getUserById(userId); // проверка пользователя
+        UserDto userDto = userClient.getUserById(userId); // проверка пользователя
 
         // проверка события — через Feign-клиент main-service
         EventFullDto event = publicEventClient.getEventById(dto.getEventId());
-        if (event.getState() != EventState.PUBLISHED) {
+        if (event.getState().equals(EventState.PUBLISHED)) {
             throw new ValidationException("Can't comment unpublished events");
         }
 
@@ -53,7 +57,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void deleteOwnComment(Long userId, Long commentId) {
         // Опционально: проверка, существует ли пользователь
-        userClient.getUserById(userId);
+        UserDto userDto = userClient.getUserById(userId);
 
         // Получение комментария
         Comment comment = getCommentById(commentId);
@@ -70,10 +74,10 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public List<CommentDto> getCommentsByEvent(Long eventId, int from, int size) {
-        getEventById(eventId); // Проверка на существование события
+        publicEventClient.getEventById(eventId); // Проверка на существование события
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("createdOn").descending());
-        return commentRepository.findByEvent_Id(eventId, pageable).stream()
+        return commentRepository.findByEventId(eventId, pageable).stream()
                 .map(CommentMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -108,7 +112,7 @@ public class CommentServiceImpl implements CommentService {
 
         // Проверка: существует ли событие (если указано)
         if (params.getEventId() != null) {
-            getEventById(params.getEventId());
+            publicEventClient.getEventById(params.getEventId());
         }
 
         LocalDateTime rangeStart = null;
@@ -153,11 +157,6 @@ public class CommentServiceImpl implements CommentService {
 
         comment.setText(updateDto.getText());
         return CommentMapper.toDto(commentRepository.save(comment));
-    }
-
-    private Event getEventById(Long eventId) {
-        return eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event with id " + eventId + " not found"));
     }
 
     private Comment getCommentById(Long commentId) {

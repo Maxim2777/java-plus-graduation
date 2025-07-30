@@ -1,7 +1,7 @@
 package ru.practicum.comment.mapper;
 
-import ru.practicum.comment.dto.CommentDto;
-import ru.practicum.comment.dto.NewCommentDto;
+import ru.practicum.ewm.main.dto.CommentDto;
+import ru.practicum.ewm.main.dto.NewCommentDto;
 import ru.practicum.comment.model.Comment;
 
 import java.time.LocalDateTime;

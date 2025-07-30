@@ -1,9 +1,9 @@
 package ru.practicum.comment.service;
 
-import ru.practicum.comment.dto.CommentDto;
-import ru.practicum.comment.dto.NewCommentDto;
-import ru.practicum.comment.dto.UpdateCommentDto;
-import ru.practicum.comment.dto.params.CommentSearchParamsAdmin;
+import ru.practicum.ewm.main.dto.CommentDto;
+import ru.practicum.ewm.main.dto.NewCommentDto;
+import ru.practicum.ewm.main.dto.UpdateCommentDto;
+import ru.practicum.ewm.main.dto.params.CommentSearchParamsAdmin;
 
 import java.util.List;
 

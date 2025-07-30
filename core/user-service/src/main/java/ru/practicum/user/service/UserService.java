@@ -1,8 +1,8 @@
 package ru.practicum.user.service;
 
-import ru.practicum.user.dto.NewUserRequest;
-import ru.practicum.user.dto.UserDto;
-import ru.practicum.user.dto.params.UserParamsAdmin;
+import ru.practicum.ewm.main.dto.NewUserRequest;
+import ru.practicum.ewm.main.dto.UserDto;
+import ru.practicum.ewm.main.dto.params.UserParamsAdmin;
 
 import java.util.List;
 

@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.comment.dto.CommentDto;
-import ru.practicum.comment.dto.NewCommentDto;
-import ru.practicum.comment.dto.UpdateCommentDto;
+import ru.practicum.ewm.main.dto.CommentDto;
+import ru.practicum.ewm.main.dto.NewCommentDto;
+import ru.practicum.ewm.main.dto.UpdateCommentDto;
 import ru.practicum.comment.service.CommentService;
 
 import java.util.List;
