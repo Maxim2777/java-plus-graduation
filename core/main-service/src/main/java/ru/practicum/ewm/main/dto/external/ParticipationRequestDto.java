@@ -1,4 +1,4 @@
-package ru.practicum.ewm.main.dto.external;
+/*package ru.practicum.ewm.main.dto.external;
 
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -10,4 +10,4 @@ public class ParticipationRequestDto {
     private Long event;
     private Long requester;
     private String status;
-}
+}*/
