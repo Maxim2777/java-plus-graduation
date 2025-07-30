@@ -3,16 +3,15 @@ package ru.practicum.comment.mapper;
 import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.comment.dto.NewCommentDto;
 import ru.practicum.comment.model.Comment;
-import ru.practicum.comment.model.Event;
 
 import java.time.LocalDateTime;
 
 public class CommentMapper {
 
-    public static Comment toEntity(NewCommentDto dto, Long authorId, Event event) {
+    public static Comment toEntity(NewCommentDto dto, Long authorId) {
         return Comment.builder()
                 .authorId(authorId)
-                .event(event)
+                .eventId(dto.getEventId())
                 .text(dto.getText())
                 .createdOn(LocalDateTime.now())
                 .build();
@@ -22,7 +21,7 @@ public class CommentMapper {
         return CommentDto.builder()
                 .id(comment.getId())
                 .authorId(comment.getAuthorId())
-                .eventId(comment.getEvent().getId())
+                .eventId(comment.getEventId())
                 .text(comment.getText())
                 .createdOn(comment.getCreatedOn())
                 .build();

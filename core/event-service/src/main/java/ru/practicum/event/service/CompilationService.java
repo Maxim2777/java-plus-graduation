@@ -1,9 +1,9 @@
-package ru.practicum.ewm.main.service;
+package ru.practicum.event.service;
 
-import ru.practicum.ewm.main.dto.CompilationDto;
-import ru.practicum.ewm.main.dto.params.CompilationParamsPublic;
-import ru.practicum.ewm.main.dto.NewCompilationDto;
-import ru.practicum.ewm.main.dto.UpdateCompilationRequest;
+import ru.practicum.event.dto.CompilationDto;
+import ru.practicum.event.dto.params.CompilationParamsPublic;
+import ru.practicum.event.dto.NewCompilationDto;
+import ru.practicum.event.dto.UpdateCompilationRequest;
 
 import java.util.List;
 

@@ -15,12 +15,10 @@ import ru.practicum.comment.exception.NotFoundException;
 import ru.practicum.comment.exception.ValidationException;
 import ru.practicum.comment.mapper.CommentMapper;
 import ru.practicum.comment.model.Comment;
-import ru.practicum.comment.model.Event;
-import ru.practicum.comment.model.enums.EventState;
 import ru.practicum.comment.repository.CommentRepository;
-import ru.practicum.comment.repository.EventRepository;
 import ru.practicum.comment.service.CommentService;
-import ru.practicum.comment.client.UserClient;
+import ru.practicum.ewm.main.client.PublicEventClient;
+import ru.practicum.ewm.main.client.UserClient;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -33,26 +31,22 @@ import java.util.stream.Collectors;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
-    private final EventRepository eventRepository;
+    private final PublicEventClient eventClient;
     private final UserClient userClient;
 
     @Override
     public CommentDto createComment(Long userId, NewCommentDto dto) {
-        // Проверка существования пользователя через Feign-клиент
-        userClient.getUserById(userId);
+        userClient.getUserById(userId); // проверка пользователя
 
-        // Получение события
-        Event event = getEventById(dto.getEventId());
-
-        // Валидация
-        if (!event.getState().equals(EventState.PUBLISHED)) {
+        // проверка события — через Feign-клиент main-service
+        EventFullDto event = publicEventClient.getEventById(dto.getEventId());
+        if (event.getState() != EventState.PUBLISHED) {
             throw new ValidationException("Can't comment unpublished events");
         }
 
-        // Создание комментария
-        Comment comment = CommentMapper.toEntity(dto, userId, event);
+        // создаём Comment без сущности Event
+        Comment comment = CommentMapper.toEntity(dto, userId);
 
-        // Сохранение и возврат DTO
         return CommentMapper.toDto(commentRepository.save(comment));
     }
 

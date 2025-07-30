@@ -32,9 +32,8 @@ public class Comment {
     @Column(name = "author_id", nullable = false)
     private Long authorId;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "event_id")
-    private Event event;
+    @Column(name = "event_id", nullable = false)
+    private Long eventId;
 
     @Column(nullable = false, length = 500)
     private String text;

@@ -1,12 +1,12 @@
-package ru.practicum.ewm.main.controller;
+package ru.practicum.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.main.dto.CompilationDto;
-import ru.practicum.ewm.main.dto.params.CompilationParamsPublic;
-import ru.practicum.ewm.main.service.CompilationService;
+import ru.practicum.event.dto.CompilationDto;
+import ru.practicum.event.dto.params.CompilationParamsPublic;
+import ru.practicum.event.service.CompilationService;
 
 import java.util.List;
 

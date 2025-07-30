@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
+import ru.practicum.user.dto.params.UserParamsAdmin;
 import ru.practicum.user.exception.ConflictException;
 import ru.practicum.user.exception.NotFoundException;
 import ru.practicum.user.mapper.UserMapper;
@@ -35,14 +36,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-        List<User> users;
-
-        if (ids != null && !ids.isEmpty()) {
-            users = userRepository.findAllByIdIn(ids);
-        } else {
-            users = userRepository.findAll(PageRequest.of(from / size, size)).getContent();
-        }
+    public List<UserDto> getUsers(UserParamsAdmin param) {
+        List<User> users = (param.getIds() != null && !param.getIds().isEmpty())
+                ? userRepository.findAllByIdIn(param.getIds())
+                : userRepository.findAll(PageRequest.of(param.getFrom() / param.getSize(),
+                param.getSize())).getContent();
 
         return users.stream()
                 .map(UserMapper::toDto)
