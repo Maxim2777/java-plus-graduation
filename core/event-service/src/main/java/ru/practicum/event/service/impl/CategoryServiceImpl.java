@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.event.dto.CategoryDto;
-import ru.practicum.event.dto.NewCategoryDto;
 import ru.practicum.event.exception.ConflictException;
 import ru.practicum.event.exception.NotFoundException;
 import ru.practicum.event.mapper.CategoryMapper;
@@ -16,6 +14,8 @@ import ru.practicum.event.model.QEvent;
 import ru.practicum.event.repository.CategoryRepository;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.event.service.CategoryService;
+import ru.practicum.ewm.main.dto.CategoryDto;
+import ru.practicum.ewm.main.dto.NewCategoryDto;
 
 import java.util.List;
 

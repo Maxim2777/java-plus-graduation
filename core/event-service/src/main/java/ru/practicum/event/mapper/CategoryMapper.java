@@ -1,7 +1,7 @@
 package ru.practicum.event.mapper;
 
-import ru.practicum.event.dto.CategoryDto;
 import ru.practicum.event.model.Category;
+import ru.practicum.ewm.main.dto.CategoryDto;
 
 import java.util.List;
 import java.util.stream.Collectors;

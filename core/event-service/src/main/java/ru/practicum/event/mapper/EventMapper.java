@@ -1,8 +1,13 @@
 package ru.practicum.event.mapper;
 
-import ru.practicum.event.dto.*;
 import ru.practicum.event.model.*;
-import ru.practicum.event.model.enums.EventState;
+import ru.practicum.ewm.main.dto.CategoryDto;
+import ru.practicum.ewm.main.dto.EventFullDto;
+import ru.practicum.ewm.main.dto.EventShortDto;
+import ru.practicum.ewm.main.dto.LocationDto;
+import ru.practicum.ewm.main.dto.NewEventDto;
+import ru.practicum.ewm.main.dto.UserShortDto;
+import ru.practicum.ewm.main.model.enums.EventState;
 
 import java.time.LocalDateTime;
 
