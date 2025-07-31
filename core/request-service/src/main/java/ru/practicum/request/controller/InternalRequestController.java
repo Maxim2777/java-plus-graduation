@@ -17,19 +17,19 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/internal/events")
+@RequestMapping("/internal")
 public class InternalRequestController {
 
     private final RequestService requestService;
 
-    @GetMapping("/{eventId}/requests")
+    @GetMapping("/events/{eventId}/requests")
     public ResponseEntity<List<ParticipationRequestDto>> getRequestsByEvent(@PathVariable Long eventId) {
         return ResponseEntity.ok(requestService.getRequestsByEvent(eventId));
     }
 
-    @PostMapping("/internal/requests/batch")
+    @PostMapping("/requests/batch")
     public ResponseEntity<Void> updateAllRequests(@RequestBody List<ParticipationRequestDto> requests) {
         requestService.updateAll(requests);
-        return ResponseEntity.noContent().build(); // 204
+        return ResponseEntity.noContent().build();
     }
 }
