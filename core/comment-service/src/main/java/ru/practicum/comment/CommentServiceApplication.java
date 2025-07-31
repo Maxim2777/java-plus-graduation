@@ -1,4 +1,4 @@
-package ru.practicum.request;
+package ru.practicum.comment;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,8 +8,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableDiscoveryClient
 @SpringBootApplication
 @EnableFeignClients(basePackages = "ru.practicum.ewm.main.client")
-public class RequestServiceApplication {
+public class CommentServiceApplication {
     public static void main(String[] args) {
-        SpringApplication.run(RequestServiceApplication.class, args);
+        SpringApplication.run(CommentServiceApplication.class, args);
     }
 }

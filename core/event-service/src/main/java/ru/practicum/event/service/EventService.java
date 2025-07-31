@@ -1,10 +1,17 @@
 package ru.practicum.event.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import ru.practicum.event.dto.*;
-import ru.practicum.event.dto.params.EventParamsAdmin;
-import ru.practicum.event.dto.params.EventParamsPublic;
-import ru.practicum.event.dto.params.UserParamsAdmin;
+import ru.practicum.ewm.main.dto.EventFullDto;
+import ru.practicum.ewm.main.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.ewm.main.dto.EventRequestStatusUpdateResult;
+import ru.practicum.ewm.main.dto.EventShortDto;
+import ru.practicum.ewm.main.dto.NewEventDto;
+import ru.practicum.ewm.main.dto.ParticipationRequestDto;
+import ru.practicum.ewm.main.dto.UpdateEventAdminRequest;
+import ru.practicum.ewm.main.dto.UpdateEventUserRequest;
+import ru.practicum.ewm.main.dto.params.EventParamsAdmin;
+import ru.practicum.ewm.main.dto.params.EventParamsPublic;
+import ru.practicum.ewm.main.dto.params.UserParamsAdmin;
 
 import java.util.List;
 

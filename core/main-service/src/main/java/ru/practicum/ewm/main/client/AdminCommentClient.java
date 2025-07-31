@@ -6,7 +6,7 @@ import ru.practicum.ewm.main.dto.CommentDto;
 
 import java.util.List;
 
-@FeignClient(name = "comment-service")
+@FeignClient(name = "comment-service", contextId = "AdminCommentClient")
 public interface AdminCommentClient {
 
     @DeleteMapping("/admin/comments/{commentId}")

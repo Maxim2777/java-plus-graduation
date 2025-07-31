@@ -8,7 +8,7 @@ import ru.practicum.ewm.main.dto.UpdateCommentDto;
 
 import java.util.List;
 
-@FeignClient(name = "comment-service")
+@FeignClient(name = "comment-service", contextId = "PrivateCommentClient")
 public interface PrivateCommentClient {
 
     @PostMapping("/users/{userId}/comments")

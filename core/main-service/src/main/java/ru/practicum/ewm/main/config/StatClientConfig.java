@@ -1,3 +1,4 @@
+/*
 package ru.practicum.ewm.main.config;
 
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -30,4 +31,4 @@ public class StatClientConfig {
     public StatClient statClient(DiscoveryClient discoveryClient, RetryTemplate retryTemplate) {
         return new StatClient(discoveryClient, retryTemplate);
     }
-}
+}*/

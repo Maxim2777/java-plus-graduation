@@ -14,44 +14,61 @@ spring:
 
       routes:
 
-        # user-service маршруты
-        - id: user-service-user
+        # === USER-SERVICE ===
+        - id: user-service-users
           uri: lb://user-service
           predicates:
             - Path=/users/**
 
-        - id: user-service-admin-users
+        - id: user-service-admin
           uri: lb://user-service
           predicates:
             - Path=/admin/users/**
 
-        # MAIN-SERVICE маршруты
-        - id: main-service-admin
-          uri: lb://main-service
+        # === EVENT-SERVICE ===
+        - id: event-service-admin-events
+          uri: lb://event-service
           predicates:
-            - Path=/admin/**
+            - Path=/admin/events/**
 
-        - id: main-service-categories
-          uri: lb://main-service
+        - id: event-service-categories
+          uri: lb://event-service
           predicates:
             - Path=/categories/**
 
-        - id: main-service-events
-          uri: lb://main-service
+        - id: event-service-events
+          uri: lb://event-service
           predicates:
             - Path=/events/**
 
-        - id: main-service-compilations
-          uri: lb://main-service
+        - id: event-service-compilations
+          uri: lb://event-service
           predicates:
             - Path=/compilations/**
 
-        - id: main-service-main
-          uri: lb://main-service
+        # === REQUEST-SERVICE ===
+        - id: request-service-private
+          uri: lb://request-service
           predicates:
-            - Path=/main/**
+            - Path=/users/*/requests/**
 
-        # STATS-SERVER маршруты
+        # === COMMENT-SERVICE ===
+        - id: comment-service-private
+          uri: lb://comment-service
+          predicates:
+            - Path=/users/*/comments/**
+
+        - id: comment-service-public
+          uri: lb://comment-service
+          predicates:
+            - Path=/events/*/comments/**
+
+        - id: comment-service-admin
+          uri: lb://comment-service
+          predicates:
+            - Path=/admin/comments/**
+
+        # === STATS-SERVICE ===
         - id: stats-server-hit
           uri: lb://stats-server
           predicates:
@@ -62,6 +79,14 @@ spring:
           predicates:
             - Path=/stats
 
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.uuid}
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
 management:
   endpoints:
     web:
@@ -71,12 +96,3 @@ management:
   endpoint:
     gateway:
       enabled: true
-
-eureka:
-  instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${random.uuid}
-
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka

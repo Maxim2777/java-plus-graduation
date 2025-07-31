@@ -6,7 +6,7 @@ import ru.practicum.ewm.main.dto.CommentDto;
 
 import java.util.List;
 
-@FeignClient(name = "comment-service")
+@FeignClient(name = "comment-service", contextId = "PublicCommentClient")
 public interface PublicCommentClient {
 
     @GetMapping("/events/{eventId}/comments")

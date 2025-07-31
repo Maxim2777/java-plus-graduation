@@ -6,7 +6,7 @@ import ru.practicum.ewm.main.dto.CategoryDto;
 
 import java.util.List;
 
-@FeignClient(name = "event-service")
+@FeignClient(name = "event-service", contextId = "PublicCategoryClient")
 public interface PublicCategoryClient {
 
     @GetMapping("/categories")

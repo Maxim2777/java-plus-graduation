@@ -10,4 +10,8 @@ public interface RequestService {
     ParticipationRequestDto addRequest(Long userId, Long eventId);
 
     ParticipationRequestDto cancelRequest(Long userId, Long requestId);
+
+    List<ParticipationRequestDto> getRequestsByEvent(Long eventId);
+
+    void updateAll(List<ParticipationRequestDto> requests);
 }

@@ -6,7 +6,7 @@ import ru.practicum.ewm.main.dto.CompilationDto;
 
 import java.util.List;
 
-@FeignClient(name = "event-service")
+@FeignClient(name = "event-service", contextId = "PublicCompilationClient")
 public interface PublicCompilationClient {
 
     @GetMapping("/compilations")

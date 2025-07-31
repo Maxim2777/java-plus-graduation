@@ -3,21 +3,22 @@ server:
 
 spring:
   application:
-    name: user-service
+    name: comment-service
 
   cloud:
-     config:
-       enabled: false
+    config:
+      enabled: false
 
-#  cloud:
-#    config:
-#      fail-fast: true
-#      discovery:
-#        enabled: true
-#        service-id: config-server
-#      retry:
-#        use-random-policy: true
-#        max-interval: 6000
+  #  cloud:
+  #    config:
+  #      fail-fast: true
+  #      discovery:
+  #        enabled: true
+  #        service-id: config-server
+  #      retry:
+  #        use-random-policy: true
+  #        max-interval: 6000
+
 
   datasource:
     url: jdbc:postgresql://localhost:6542/ewm-db

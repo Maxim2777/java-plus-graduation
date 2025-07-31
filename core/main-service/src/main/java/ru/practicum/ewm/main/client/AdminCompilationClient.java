@@ -6,7 +6,7 @@ import ru.practicum.ewm.main.dto.CompilationDto;
 import ru.practicum.ewm.main.dto.NewCompilationDto;
 import ru.practicum.ewm.main.dto.UpdateCompilationRequest;
 
-@FeignClient(name = "event-service")
+@FeignClient(name = "event-service", contextId = "AdminCompilationClient")
 public interface AdminCompilationClient {
 
     @PostMapping("/admin/compilations")

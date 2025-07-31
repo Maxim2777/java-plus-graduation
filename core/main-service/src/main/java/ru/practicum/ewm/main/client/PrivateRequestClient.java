@@ -6,7 +6,7 @@ import ru.practicum.ewm.main.dto.ParticipationRequestDto;
 
 import java.util.List;
 
-@FeignClient(name = "request-service")
+@FeignClient(name = "request-service", contextId = "PrivateRequestClient")
 public interface PrivateRequestClient {
 
     @GetMapping("/users/{userId}/requests")

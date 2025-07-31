@@ -90,4 +90,19 @@ public class RequestServiceImpl implements RequestService {
         request.setStatus(ParticipationRequestStatus.CANCELED);
         return ParticipationRequestMapper.toDto(requestRepository.save(request));
     }
+
+    @Override
+    public List<ParticipationRequestDto> getRequestsByEvent(Long eventId) {
+        List<ParticipationRequest> requests = requestRepository.findAllByEventId(eventId);
+        return requests.stream()
+                .map(ParticipationRequestMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void updateAll(List<ParticipationRequestDto> updatedRequests) {
+        List<ParticipationRequest> entities = ParticipationRequestMapper.toEntityList(updatedRequests);
+        requestRepository.saveAll(entities);
+    }
 }
