@@ -334,7 +334,7 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> confirmedMap = getConfirmedRequests(events);
         Map<Long, Long> viewsMap = getViews(events);
-        Map<Long, UserDto> initiators = buildInitiatorMap(events); // надо добавить
+        Map<Long, String> initiators = buildInitiatorNameMap(events); // надо добавить
 
         if (onlyAvailable) {
             events = events
@@ -348,9 +348,7 @@ public class EventServiceImpl implements EventService {
                         e,
                         confirmedMap.getOrDefault(e.getId(), 0L),
                         viewsMap.getOrDefault(e.getId(), 0L),
-                        Optional.ofNullable(initiators.get(e.getInitiatorId()))
-                                .map(UserDto::getName)
-                                .orElse(null)
+                        initiators.getOrDefault(e.getId(), null)
                 ))
                 .collect(Collectors.toList());
                 //Изменения!
@@ -390,7 +388,7 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> viewsMap = getViews(List.of(event));
         Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
-        Map<Long, UserDto> initiators = buildInitiatorMap(List.of(event));
+        Map<Long, String> initiators = buildInitiatorNameMap(List.of(event));
         //Новое!
 
         statClient.sendHit(EndpointHitDto.builder()
@@ -401,7 +399,7 @@ public class EventServiceImpl implements EventService {
                 .build());
 
         return EventMapper.entityToFullDto(event,
-                confirmedMap.get(event.getId()), viewsMap.get(event.getId()), initiators.get(event.getId()).getName());
+                confirmedMap.get(event.getId()), viewsMap.get(event.getId()), initiators.get(event.getId()));
     }
 
     // --- ADMIN API ---
@@ -456,12 +454,12 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> viewsMap = getViews(events);
         Map<Long, Long> confirmedMap = getConfirmedRequests(events);
-        Map<Long, UserDto> initiators = buildInitiatorMap(events); // Новое!
+        Map<Long, String> initiators = buildInitiatorNameMap(events); // Новое!
 
         return events
                 .stream()
                 .map(e -> EventMapper.entityToFullDto(e, confirmedMap.get(e.getId()), viewsMap.get(e.getId()),
-                        initiators.get(e.getId()).getName()))
+                        initiators.get(e.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -511,11 +509,11 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> viewsMap = getViews(List.of(savedEvent));
         Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(savedEvent));
-        Map<Long, UserDto> initiators = buildInitiatorMap(List.of(event));
+        Map<Long, String> initiators = buildInitiatorNameMap(List.of(event));
 
         return EventMapper
                 .entityToFullDto(event, confirmedMap.get(savedEvent.getId()), viewsMap.get(savedEvent.getId()),
-                        initiators.get(savedEvent.getId()).getName());
+                        initiators.get(savedEvent.getId()));
     }
 
     private Map<Long, Long> getViews(List<Event> events) {
@@ -571,20 +569,15 @@ public class EventServiceImpl implements EventService {
     }
 
 
-    //Проверить!
-    private Map<Long, UserDto> buildInitiatorMap(List<Event> events) {
-        // Извлекаем уникальные ID инициаторов событий
+    private Map<Long, String> buildInitiatorNameMap(List<Event> events) {
         List<Long> initiatorIds = events.stream()
                 .map(Event::getInitiatorId)
                 .distinct()
                 .toList();
 
-        // Получаем пользователей по этим ID через Feign-клиент
-        List<UserDto> initiatorList = userClient.getAll(initiatorIds, 0, 0);
+        List<UserDto> users = userClient.getAll(initiatorIds, 0, 0);
 
-        // Формируем Map: ключ — id пользователя, значение — сам UserDto
-        return initiatorList.stream()
-                .collect(Collectors.toMap(UserDto::getId, Function.identity()));
+        return users.stream()
+                .collect(Collectors.toMap(UserDto::getId, UserDto::getName));
     }
-
 }
