@@ -1,11 +1,14 @@
 package ru.practicum.comment.service.impl;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.main.client.InternalEvent;
+import ru.practicum.ewm.main.client.UserClient;
 import ru.practicum.ewm.main.dto.CommentDto;
 import ru.practicum.ewm.main.dto.EventFullDto;
 import ru.practicum.ewm.main.dto.NewCommentDto;
@@ -19,8 +22,6 @@ import ru.practicum.comment.mapper.CommentMapper;
 import ru.practicum.comment.model.Comment;
 import ru.practicum.comment.repository.CommentRepository;
 import ru.practicum.comment.service.CommentService;
-import ru.practicum.ewm.main.client.PublicEventClient;
-import ru.practicum.ewm.main.client.UserClient;
 import ru.practicum.ewm.main.model.enums.EventState;
 
 import java.time.LocalDateTime;
@@ -34,23 +35,29 @@ import java.util.stream.Collectors;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
-    private final PublicEventClient publicEventClient;
     private final UserClient userClient;
+    private final InternalEvent internalEventClient;
 
     @Override
     @Transactional
     public CommentDto createComment(Long userId, NewCommentDto dto) {
-        UserDto userDto = userClient.getUserById(userId); // проверка пользователя
+        userClient.getUserById(userId); // проверка пользователя
 
-        // проверка события — через Feign-клиент main-service
-        EventFullDto event = publicEventClient.getEventById(dto.getEventId());
-        if (event.getState().equals(EventState.PUBLISHED)) {
+        EventFullDto event;
+        try {
+            event = internalEventClient.getEventById(dto.getEventId()); // ← заменили
+        } catch (FeignException e) {
+            if (e.status() == 404) {
+                throw new NotFoundException("The event with id: " + dto.getEventId() + " not found!");
+            }
+            throw new ValidationException("Can't comment unpublished events or non-public events.");
+        }
+
+        if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new ValidationException("Can't comment unpublished events");
         }
 
-        // создаём Comment без сущности Event
         Comment comment = CommentMapper.toEntity(dto, userId);
-
         return CommentMapper.toDto(commentRepository.save(comment));
     }
 
@@ -74,7 +81,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public List<CommentDto> getCommentsByEvent(Long eventId, int from, int size) {
-        publicEventClient.getEventById(eventId); // Проверка на существование события
+        internalEventClient.getEventById(eventId); // ← заменили
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("createdOn").descending());
         return commentRepository.findByEventId(eventId, pageable).stream()
@@ -105,14 +112,12 @@ public class CommentServiceImpl implements CommentService {
         Pageable pageable = PageRequest.of(params.getFrom() / params.getSize(), params.getSize(),
                 Sort.by("createdOn").descending());
 
-        // Проверка: существует ли автор (если указан)
         if (params.getAuthorId() != null) {
             userClient.getUserById(params.getAuthorId());
         }
 
-        // Проверка: существует ли событие (если указано)
         if (params.getEventId() != null) {
-            publicEventClient.getEventById(params.getEventId());
+            internalEventClient.getEventById(params.getEventId()); // ← заменили
         }
 
         LocalDateTime rangeStart = null;

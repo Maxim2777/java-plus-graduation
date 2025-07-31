@@ -20,7 +20,31 @@ spring:
           predicates:
             - Path=/admin/users/**
 
+        # === COMMENT-SERVICE ===
+        ## Admin
+        - id: comment-service-admin
+          uri: lb://comment-service
+          predicates:
+            - Path=/admin/comments/**
+        ## Public
+        - id: comment-service-public
+          uri: lb://comment-service
+          predicates:
+            - Path=/events/*/comments/**
+        ## Private
+        - id: comment-service-private
+          uri: lb://comment-service
+          predicates:
+            - Path=/users/*/comments/**
+
         # === EVENT-SERVICE ===
+
+        # INTERNAL
+        - id: event-service-internal
+          uri: lb://event-service
+          predicates:
+            - Path=/internal/events/**
+
         ## Admin
         - id: event-service-admin-events
           uri: lb://event-service
@@ -66,23 +90,6 @@ spring:
           uri: lb://request-service
           predicates:
             - Path=/internal/**
-
-        # === COMMENT-SERVICE ===
-        ## Admin
-        - id: comment-service-admin
-          uri: lb://comment-service
-          predicates:
-            - Path=/admin/comments/**
-        ## Public
-        - id: comment-service-public
-          uri: lb://comment-service
-          predicates:
-            - Path=/events/*/comments/**
-        ## Private
-        - id: comment-service-private
-          uri: lb://comment-service
-          predicates:
-            - Path=/users/*/comments/**
 
         # === STATS-SERVER ===
         - id: stats-server-hit

@@ -516,6 +516,23 @@ public class EventServiceImpl implements EventService {
                         initiators.get(savedEvent.getId()));
     }
 
+    @Override
+    @Transactional
+    public EventFullDto getEventByIdInternal(Long eventId) {
+        Event event = getEventById(eventId); // найдёт или кинет 404, если не существует
+
+        Map<Long, Long> viewsMap = getViews(List.of(event));
+        Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
+        Map<Long, String> initiators = buildInitiatorNameMap(List.of(event));
+
+        return EventMapper.entityToFullDto(
+                event,
+                confirmedMap.get(event.getId()),
+                viewsMap.get(event.getId()),
+                initiators.get(event.getId())
+        );
+    }
+
     private Map<Long, Long> getViews(List<Event> events) {
         List<String> uris = events
                 .stream()
