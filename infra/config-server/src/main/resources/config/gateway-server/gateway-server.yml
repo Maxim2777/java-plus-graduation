@@ -15,65 +15,80 @@ spring:
       routes:
 
         # === USER-SERVICE ===
-        - id: user-service-users
-          uri: lb://user-service
-          predicates:
-            - Path=/users/**
-
         - id: user-service-admin
           uri: lb://user-service
           predicates:
             - Path=/admin/users/**
 
         # === EVENT-SERVICE ===
+        ## Admin
         - id: event-service-admin-events
           uri: lb://event-service
           predicates:
             - Path=/admin/events/**
+        - id: event-service-admin-categories
+          uri: lb://event-service
+          predicates:
+            - Path=/admin/categories/**
+        - id: event-service-admin-compilations
+          uri: lb://event-service
+          predicates:
+            - Path=/admin/compilations/**
 
-        - id: event-service-categories
+        ## Public
+        - id: event-service-public-categories
           uri: lb://event-service
           predicates:
             - Path=/categories/**
-
-        - id: event-service-events
+        - id: event-service-public-events
           uri: lb://event-service
           predicates:
             - Path=/events/**
-
-        - id: event-service-compilations
+        - id: event-service-public-compilations
           uri: lb://event-service
           predicates:
             - Path=/compilations/**
 
+        ## Private
+        - id: event-service-private-events
+          uri: lb://event-service
+          predicates:
+            - Path=/users/*/events/**
+
         # === REQUEST-SERVICE ===
+        ## Private
         - id: request-service-private
           uri: lb://request-service
           predicates:
             - Path=/users/*/requests/**
+        ## Internal
+        - id: request-service-internal
+          uri: lb://request-service
+          predicates:
+            - Path=/internal/**
 
         # === COMMENT-SERVICE ===
+        ## Admin
+        - id: comment-service-admin
+          uri: lb://comment-service
+          predicates:
+            - Path=/admin/comments/**
+        ## Public
+        - id: comment-service-public
+          uri: lb://comment-service
+          predicates:
+            - Path=/events/*/comments/**
+        ## Private
         - id: comment-service-private
           uri: lb://comment-service
           predicates:
             - Path=/users/*/comments/**
 
-        - id: comment-service-public
-          uri: lb://comment-service
-          predicates:
-            - Path=/events/*/comments/**
-
-        - id: comment-service-admin
-          uri: lb://comment-service
-          predicates:
-            - Path=/admin/comments/**
-
-        # === STATS-SERVICE ===
+        # === STATS-SERVER ===
         - id: stats-server-hit
           uri: lb://stats-server
           predicates:
             - Path=/hit
-
         - id: stats-server-stats
           uri: lb://stats-server
           predicates:
