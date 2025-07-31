@@ -1,5 +1,6 @@
 package ru.practicum.request.service.impl;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +42,13 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public ParticipationRequestDto addRequest(Long requesterId, Long eventId) {
         userClient.getUserById(requesterId); // Проверка, что пользователь существует
-        EventFullDto event = publicEventClient.getEventById(eventId);
+
+        EventFullDto event;
+        try {
+            event = publicEventClient.getEventById(eventId);
+        } catch (FeignException.NotFound e) {
+            throw new ConflictException("Cannot participate in an unpublished or non-existent event.");
+        }
 
         if (requestRepository.existsByRequesterIdAndEventId(requesterId, eventId)) {
             throw new ConflictException("User already sent a request for this event.");
