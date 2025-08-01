@@ -58,4 +58,17 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- Плагин для сборки исполняемого Spring Boot JAR -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>ru.practicum.user.UserServiceApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
