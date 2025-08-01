@@ -22,7 +22,7 @@ public class ParticipationRequestMapper {
         return ParticipationRequest.builder()
                 .id(dto.getId())
                 .created(dto.getCreated())
-                .eventId(dto.getEvent())                // ✅ поле event заменено на eventId
+                .eventId(dto.getEvent())                // поле event заменено на eventId
                 .requesterId(dto.getRequester())
                 .status(dto.getStatus())
                 .build();
