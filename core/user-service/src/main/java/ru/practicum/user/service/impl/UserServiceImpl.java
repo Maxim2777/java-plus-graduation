@@ -7,12 +7,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.main.dto.NewUserRequest;
 import ru.practicum.ewm.main.dto.UserDto;
 import ru.practicum.ewm.main.dto.params.UserParamsAdmin;
-import ru.practicum.user.exception.ConflictException;
-import ru.practicum.user.exception.NotFoundException;
 import ru.practicum.user.mapper.UserMapper;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 import ru.practicum.user.service.UserService;
+import ru.practicum.ewm.main.exception.ConflictException;
+import ru.practicum.ewm.main.exception.NotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;

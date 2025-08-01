@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+import ru.practicum.ewm.main.exception.ApiError;
+import ru.practicum.ewm.main.exception.ConflictException;
+import ru.practicum.ewm.main.exception.NotFoundException;
+import ru.practicum.ewm.main.exception.ValidationException;
+
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

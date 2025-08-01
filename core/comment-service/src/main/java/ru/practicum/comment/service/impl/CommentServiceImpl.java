@@ -15,14 +15,14 @@ import ru.practicum.ewm.main.dto.NewCommentDto;
 import ru.practicum.ewm.main.dto.UpdateCommentDto;
 import ru.practicum.ewm.main.dto.UserDto;
 import ru.practicum.ewm.main.dto.params.CommentSearchParamsAdmin;
-import ru.practicum.comment.exception.ConflictException;
-import ru.practicum.comment.exception.NotFoundException;
-import ru.practicum.comment.exception.ValidationException;
 import ru.practicum.comment.mapper.CommentMapper;
 import ru.practicum.comment.model.Comment;
 import ru.practicum.comment.repository.CommentRepository;
 import ru.practicum.comment.service.CommentService;
 import ru.practicum.ewm.main.model.enums.EventState;
+import ru.practicum.ewm.main.exception.ConflictException;
+import ru.practicum.ewm.main.exception.NotFoundException;
+import ru.practicum.ewm.main.exception.ValidationException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;

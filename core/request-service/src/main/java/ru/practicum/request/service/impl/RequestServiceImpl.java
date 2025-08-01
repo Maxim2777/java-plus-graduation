@@ -9,13 +9,13 @@ import ru.practicum.ewm.main.dto.EventFullDto;
 import ru.practicum.ewm.main.dto.ParticipationRequestDto;
 import ru.practicum.ewm.main.client.UserClient;
 import ru.practicum.ewm.main.model.enums.ParticipationRequestStatus;
-import ru.practicum.request.exception.ConflictException;
-import ru.practicum.request.exception.NotFoundException;
 import ru.practicum.request.mapper.ParticipationRequestMapper;
 import ru.practicum.ewm.main.model.enums.EventState;
 import ru.practicum.request.model.ParticipationRequest;
 import ru.practicum.request.repository.ParticipationRequestRepository;
 import ru.practicum.request.service.RequestService;
+import ru.practicum.ewm.main.exception.ConflictException;
+import ru.practicum.ewm.main.exception.NotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,6 +1,8 @@
 package ru.practicum.ewm.main.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class ApiError {
     private String message;
     private String reason;
