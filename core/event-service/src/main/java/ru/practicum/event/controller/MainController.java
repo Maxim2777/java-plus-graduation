@@ -1,9 +1,9 @@
 package ru.practicum.event.controller;
 
+import ru.practicum.ewm.client.StatClient;
 import ru.practicum.ewm.dto.EndpointHitDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.main.client.StatClient;
 
 import java.time.LocalDateTime;
 

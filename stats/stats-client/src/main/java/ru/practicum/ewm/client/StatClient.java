@@ -1,4 +1,3 @@
-/*
 package ru.practicum.ewm.client;
 
 import lombok.RequiredArgsConstructor;
@@ -71,4 +70,4 @@ public class StatClient {
 
         return response != null ? List.of(response) : List.of();
     }
-}*/
+}
