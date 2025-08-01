@@ -2,16 +2,16 @@ package ru.practicum.ewm.main.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.main.dto.NewUserRequest;
 import ru.practicum.ewm.main.dto.UserDto;
 
 import java.util.List;
 
-@FeignClient(name = "user-service", contextId = "UserClient")
+@FeignClient(
+        name = "user-service",
+        contextId = "UserClient",
+        fallback = ru.practicum.ewm.main.client.fallback.UserClientFallback.class
+)
 public interface UserClient {
-
-    @PostMapping("/admin/users")
-    UserDto createUser(@RequestBody NewUserRequest request);
 
     @GetMapping("/admin/users")
     List<UserDto> getAll(
@@ -21,7 +21,4 @@ public interface UserClient {
 
     @GetMapping("/admin/users/{userId}")
     UserDto getUserById(@PathVariable Long userId);
-
-    @DeleteMapping("/admin/users/{userId}")
-    void deleteUser(@PathVariable Long userId);
 }

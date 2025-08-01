@@ -9,7 +9,11 @@ import ru.practicum.ewm.main.dto.ParticipationRequestDto;
 
 import java.util.List;
 
-@FeignClient(name = "request-service", contextId = "RequestInternalClient")
+@FeignClient(
+        name = "request-service",
+        contextId = "RequestInternalClient",
+        fallback = ru.practicum.ewm.main.client.fallback.RequestInternalClientFallback.class
+)
 public interface RequestInternalClient {
 
     @GetMapping("/internal/events/{eventId}/requests")
