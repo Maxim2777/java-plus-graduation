@@ -1,0 +1,24 @@
+package ru.practicum.ewm.main.client;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import ru.practicum.ewm.main.dto.ParticipationRequestDto;
+
+import java.util.List;
+
+@FeignClient(
+        name = "request-service",
+        contextId = "RequestInternalClient",
+        fallback = ru.practicum.ewm.main.client.fallback.RequestInternalClientFallback.class
+)
+public interface RequestInternalClient {
+
+    @GetMapping("/internal/events/{eventId}/requests")
+    List<ParticipationRequestDto> getRequestsByEvent(@PathVariable Long eventId);
+
+    @PostMapping("/internal/requests/batch")
+    void updateAll(@RequestBody List<ParticipationRequestDto> requests);
+}
