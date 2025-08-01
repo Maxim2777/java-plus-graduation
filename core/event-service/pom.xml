@@ -69,6 +69,15 @@
     <build>
         <plugins>
 
+            <!-- Плагин для сборки исполняемого JAR -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>ru.practicum.event.EventServiceApplication</mainClass>
+                </configuration>
+            </plugin>
+
             <!-- Плагин QueryDSL -->
             <plugin>
                 <groupId>com.mysema.maven</groupId>
