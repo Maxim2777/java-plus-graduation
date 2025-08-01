@@ -147,7 +147,7 @@ curl "http://localhost:8080/admin/comments?authorId=1&from=0&size=10"
 - **event-service** — управление событиями;
 - **request-service** — управление заявками на участие;
 - **user-service** — администрирование пользователями;
-- **comment-service** — функциональность комментариев (**текущий сервис**);
+- **comment-service** — функциональность комментариев;
 - **stats-server** — сервис сбора статистики;
 - **gateway-server** — API-шлюз;
 - **config-server** — централизованное хранилище конфигурации;
