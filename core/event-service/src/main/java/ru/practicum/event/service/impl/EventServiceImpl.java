@@ -20,7 +20,6 @@ import ru.practicum.event.model.QEvent;
 import ru.practicum.event.repository.CategoryRepository;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.event.service.EventService;
-import ru.practicum.ewm.main.client.PrivateRequestClient;
 import ru.practicum.ewm.main.client.RequestInternalClient;
 import ru.practicum.ewm.main.client.StatClient;
 import ru.practicum.ewm.main.client.UserClient;
@@ -43,7 +42,6 @@ import ru.practicum.ewm.main.model.enums.RequestStatus;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,7 +51,6 @@ public class EventServiceImpl implements EventService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    private final PrivateRequestClient requestClient;
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
     private final StatClient statClient;
@@ -207,13 +204,9 @@ public class EventServiceImpl implements EventService {
 
         List<ParticipationRequestDto> requests = requestInternalClient.getRequestsByEvent(eventId);
 
-        //Надо добавить новый метод
-
         long currentConfirmed = requests.stream()
                 .filter(req -> req.getStatus() == ParticipationRequestStatus.CONFIRMED)
                 .count();
-
-        //Надо добавить новый метод
 
         if (currentConfirmed == limit) {
             throw new ConflictException("The request limit for this event has been reached: " + event);
@@ -334,7 +327,7 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> confirmedMap = getConfirmedRequests(events);
         Map<Long, Long> viewsMap = getViews(events);
-        Map<Long, String> initiators = buildInitiatorNameMap(events); // надо добавить
+        Map<Long, String> initiators = buildInitiatorNameMap(events);
 
         if (onlyAvailable) {
             events = events
@@ -351,7 +344,6 @@ public class EventServiceImpl implements EventService {
                         initiators.getOrDefault(e.getId(), null)
                 ))
                 .collect(Collectors.toList());
-                //Изменения!
 
         statClient.sendHit(EndpointHitDto.builder()
                 .app("event-service")
@@ -389,7 +381,6 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> viewsMap = getViews(List.of(event));
         Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
         Map<Long, String> initiators = buildInitiatorNameMap(List.of(event));
-        //Новое!
 
         statClient.sendHit(EndpointHitDto.builder()
                 .app("event-service")
@@ -454,7 +445,7 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> viewsMap = getViews(events);
         Map<Long, Long> confirmedMap = getConfirmedRequests(events);
-        Map<Long, String> initiators = buildInitiatorNameMap(events); // Новое!
+        Map<Long, String> initiators = buildInitiatorNameMap(events);
 
         return events
                 .stream()
@@ -515,6 +506,8 @@ public class EventServiceImpl implements EventService {
                 .entityToFullDto(event, confirmedMap.get(savedEvent.getId()), viewsMap.get(savedEvent.getId()),
                         initiators.get(savedEvent.getId()));
     }
+
+    // --- INTERNAL ---
 
     @Override
     @Transactional

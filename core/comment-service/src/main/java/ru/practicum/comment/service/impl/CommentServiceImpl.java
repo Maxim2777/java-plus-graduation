@@ -45,7 +45,7 @@ public class CommentServiceImpl implements CommentService {
 
         EventFullDto event;
         try {
-            event = internalEventClient.getEventById(dto.getEventId()); // ← заменили
+            event = internalEventClient.getEventById(dto.getEventId());
         } catch (FeignException e) {
             if (e.status() == 404) {
                 throw new NotFoundException("The event with id: " + dto.getEventId() + " not found!");
@@ -81,7 +81,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public List<CommentDto> getCommentsByEvent(Long eventId, int from, int size) {
-        internalEventClient.getEventById(eventId); // ← заменили
+        internalEventClient.getEventById(eventId);
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("createdOn").descending());
         return commentRepository.findByEventId(eventId, pageable).stream()
@@ -117,7 +117,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         if (params.getEventId() != null) {
-            internalEventClient.getEventById(params.getEventId()); // ← заменили
+            internalEventClient.getEventById(params.getEventId());
         }
 
         LocalDateTime rangeStart = null;

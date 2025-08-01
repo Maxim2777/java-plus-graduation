@@ -7,7 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.main.client.UserClient;
 import ru.practicum.event.exception.ConflictException;
 import ru.practicum.event.exception.NotFoundException;
 import ru.practicum.event.mapper.CompilationMapper;
@@ -37,7 +36,6 @@ public class CompilationServiceImpl implements CompilationService {
 
     final CompilationRepository compilationRepository;
     final EventRepository eventRepository;
-    private final UserClient userClient; // ← добавили
 
     @Override
     public List<CompilationDto> getCompilations(CompilationParamsPublic params) {
