@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package stats.message.user;
+
+option java_multiple_files = true;
+option java_package = "ru.practicum.messages.proto";
+option java_outer_classname = "UserActionProto";
+
+import "google/protobuf/timestamp.proto";
+
+enum ActionType {
+  UNKNOWN = 0;
+  VIEW = 1;
+  REGISTER = 2;
+  LIKE = 3;
+}
+
+message UserActionRequest {
+  int64 userId = 1;
+  int64 eventId = 2;
+  ActionType actionType = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+message UserActionResponse {
+  string status = 1;
+}
+
+service UserActionController {
+  rpc Send(UserActionRequest) returns (UserActionResponse);
+}

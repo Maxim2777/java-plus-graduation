@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package stats.message.recommendation;
+
+option java_multiple_files = true;
+option java_package = "ru.practicum.messages.proto";
+option java_outer_classname = "RecommendationProto";
+
+message RecommendationRequest {
+  int64 userId = 1;
+}
+
+message RecommendationResponse {
+  repeated int64 recommendedEventIds = 1;
+}

@@ -10,6 +10,11 @@
     </parent>
 
     <artifactId>serialization</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>proto-schemas</module>
+        <module>avro-schemas</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

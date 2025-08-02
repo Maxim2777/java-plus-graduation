@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package stats.service.collector;
+
+import "google/protobuf/empty.proto";
+import "messages/user_action.proto"; // Путь зависит от расположения файла в директории
+
+option java_multiple_files = true;
+option java_package = "ru.practicum.grpc.stats.collector";
+
+// gRPC-сервис для сбора действий пользователей
+service UserActionCollectorService {
+  rpc CollectUserAction (stats.message.user.UserActionRequest)
+      returns (google.protobuf.Empty);
+}

@@ -1,0 +1,8 @@
+@namespace("ru.practicum.recommendation.avro")
+protocol RecommendationProtocol {
+	record RecommendationEvent {
+		long userId;
+		array<long> recommendedEventIds;
+		long generatedAt;
+	}
+}
