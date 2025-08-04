@@ -9,9 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.ewm.client.StatClient;
-import ru.practicum.ewm.dto.EndpointHitDto;
-import ru.practicum.ewm.dto.ViewStatsDto;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.*;
 import ru.practicum.event.model.QEvent;
@@ -53,7 +50,6 @@ public class EventServiceImpl implements EventService {
 
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
-    private final StatClient statClient;
     private final UserClient userClient;
     private final RequestInternalClient requestInternalClient;
 
@@ -353,13 +349,6 @@ public class EventServiceImpl implements EventService {
                 ))
                 .collect(Collectors.toList());
 
-        statClient.sendHit(EndpointHitDto.builder()
-                .app("event-service")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now())
-                .build());
-
         if (sort == null) {
             return eventShorts;
         }
@@ -389,13 +378,6 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
         Map<Long, String> initiators = buildInitiatorNameMap(List.of(event));
-
-        statClient.sendHit(EndpointHitDto.builder()
-                .app("event-service")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now())
-                .build());
 
         return EventMapper.entityToFullDto(
                 event,
@@ -555,37 +537,6 @@ public class EventServiceImpl implements EventService {
                     );
                 })
                 .collect(Collectors.toList());
-    }
-
-    private Map<Long, Long> getViews(List<Event> events) {
-        List<String> uris = events
-                .stream()
-                .map(event -> "/events/" + event.getId())
-                .collect(Collectors.toList());
-
-        LocalDateTime startDate = events
-                .stream()
-                .map(Event::getCreatedOn)
-                .toList()
-                .stream()
-                .min(LocalDateTime::compareTo)
-                .orElse(null);
-
-        String start = Objects.requireNonNull(startDate).format(FORMATTER);
-        String end = LocalDateTime.now().format(FORMATTER);
-
-        List<ViewStatsDto> views = statClient.getStats(start, end, uris, true);
-
-        Map<Long, Long> map = events
-                .stream()
-                .collect(Collectors.toMap(Event::getId, e -> 0L, (a, b) -> b));
-
-        if (!views.isEmpty()) {
-            views.forEach(v -> map.put(Long.parseLong(v.getUri().split("/", 0)[2]),
-                    v.getHits()));
-        }
-
-        return map;
     }
 
     private Map<Long, Long> getConfirmedRequests(List<Event> events) {

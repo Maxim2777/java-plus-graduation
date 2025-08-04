@@ -1,9 +1,14 @@
 spring:
   application:
     name: analyzer
+  cloud:
+    config:
+      enabled: false
+    import-check:
+      enabled: false
 
   datasource:
-    url: jdbc:postgresql://stats-db:5432/stats-db
+    url: jdbc:postgresql://localhost:6542/ewm-db
     username: stat
     password: stat
     driver-class-name: org.postgresql.Driver
@@ -17,6 +22,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.uuid}
   client:
     service-url:
-      defaultZone: http://discovery-server:8761/eureka
+      defaultZone: http://localhost:8761/eureka
