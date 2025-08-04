@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS events (
     paid BOOLEAN NOT NULL,
     participant_limit INT DEFAULT 0,
     request_moderation BOOLEAN DEFAULT TRUE,
-    state TEXT NOT NULL
+    state TEXT NOT NULL,
+    rating DOUBLE PRECISION DEFAULT 0.0
 );
 
 -- Таблица подборок событий

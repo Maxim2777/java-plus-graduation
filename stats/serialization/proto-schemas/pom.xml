@@ -56,7 +56,6 @@
                 <version>1.0.0</version>
                 <configuration>
                     <protocVersion>${protobuf.version}</protocVersion>
-                    <protoSourceRoot>${project.basedir}/src/main/protobuf</protoSourceRoot>
                     <binaryMavenPlugins>
                         <binaryMavenPlugin>
                             <groupId>io.grpc</groupId>

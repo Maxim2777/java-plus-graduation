@@ -70,14 +70,17 @@ public class EventServiceImpl implements EventService {
         BooleanExpression byUserId = QEvent.event.initiatorId.eq(userId);
         List<Event> events = eventRepository.findAll(byUserId, page).getContent();
 
-        Map<Long, Long> viewsMap = getViews(events);
         Map<Long, Long> confrmedMap = getConfirmedRequests(events);
 
         return events
                 .stream()
                 .map(event -> EventMapper
-                        .toShortDto(event, confrmedMap.get(event.getId()), viewsMap.get(event.getId()),
-                                userDto.getName()))
+                        .toShortDto(
+                                event,
+                                confrmedMap.get(event.getId()),
+                                event.getRating(),                      // заменили views на rating
+                                userDto.getName()
+                        ))
                 .collect(Collectors.toList());
     }
 
@@ -91,11 +94,14 @@ public class EventServiceImpl implements EventService {
             throw new ConflictException("User is not the owner of this event");
         }
 
-        Map<Long, Long> viewsMap = getViews(List.of(event));
         Map<Long, Long> confrmedMap = getConfirmedRequests(List.of(event));
 
-        return EventMapper.entityToFullDto(event, confrmedMap.get(event.getId()), viewsMap.get(event.getId()),
-                userDto.getName());
+        return EventMapper.entityToFullDto(
+                event,
+                confrmedMap.get(event.getId()),
+                event.getRating(),
+                userDto.getName()
+        );
     }
 
     @Override
@@ -115,7 +121,7 @@ public class EventServiceImpl implements EventService {
         Event event = EventMapper.toEntity(dto, userId);
         Event savedEvent = eventRepository.save(event);
 
-        return EventMapper.entityToFullDto(savedEvent, 0, 0, userDto.getName());
+        return EventMapper.entityToFullDto(savedEvent, 0, 0.0, userDto.getName());
     }
 
     @Override
@@ -163,13 +169,16 @@ public class EventServiceImpl implements EventService {
             event.setState(EventState.CANCELED);
         }
 
-        Map<Long, Long> viewsMap = getViews(List.of(event));
         Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
 
         eventRepository.save(event);
 
-        return EventMapper.entityToFullDto(event, confirmedMap.get(event.getId()), viewsMap.get(event.getId()),
-                userDto.getName());
+        return EventMapper.entityToFullDto(
+                event,
+                confirmedMap.get(event.getId()),
+                event.getRating(),                    // ✅ заменили views на rating
+                userDto.getName()
+        );
     }
 
     @Override
@@ -326,7 +335,6 @@ public class EventServiceImpl implements EventService {
         List<Event> events = eventRepository.findAll(where, page).getContent();
 
         Map<Long, Long> confirmedMap = getConfirmedRequests(events);
-        Map<Long, Long> viewsMap = getViews(events);
         Map<Long, String> initiators = buildInitiatorNameMap(events);
 
         if (onlyAvailable) {
@@ -340,7 +348,7 @@ public class EventServiceImpl implements EventService {
                 .map(e -> EventMapper.toShortDto(
                         e,
                         confirmedMap.getOrDefault(e.getId(), 0L),
-                        viewsMap.getOrDefault(e.getId(), 0L),
+                        e.getRating(), // ✅ используем рейтинг
                         initiators.getOrDefault(e.getId(), null)
                 ))
                 .collect(Collectors.toList());
@@ -357,9 +365,10 @@ public class EventServiceImpl implements EventService {
         }
 
         return switch (sort) {
+            // "VIEWS" теперь сортирует по rating, а не просмотрам
             case "VIEWS" -> eventShorts
                     .stream()
-                    .sorted(Comparator.comparingLong(EventShortDto::getViews).reversed())
+                    .sorted(Comparator.comparingDouble(EventShortDto::getRating).reversed()) // ✅
                     .collect(Collectors.toList());
             case "EVENT_DATE" -> eventShorts
                     .stream()
@@ -378,7 +387,6 @@ public class EventServiceImpl implements EventService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Event is not published");
         }
 
-        Map<Long, Long> viewsMap = getViews(List.of(event));
         Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
         Map<Long, String> initiators = buildInitiatorNameMap(List.of(event));
 
@@ -389,8 +397,12 @@ public class EventServiceImpl implements EventService {
                 .timestamp(LocalDateTime.now())
                 .build());
 
-        return EventMapper.entityToFullDto(event,
-                confirmedMap.get(event.getId()), viewsMap.get(event.getId()), initiators.get(event.getId()));
+        return EventMapper.entityToFullDto(
+                event,
+                confirmedMap.get(event.getId()),
+                event.getRating(),                       // ✅ заменили views
+                initiators.get(event.getId())
+        );
     }
 
     // --- ADMIN API ---
@@ -443,14 +455,17 @@ public class EventServiceImpl implements EventService {
 
         List<Event> events = eventRepository.findAll(where, page).getContent();
 
-        Map<Long, Long> viewsMap = getViews(events);
         Map<Long, Long> confirmedMap = getConfirmedRequests(events);
         Map<Long, String> initiators = buildInitiatorNameMap(events);
 
         return events
                 .stream()
-                .map(e -> EventMapper.entityToFullDto(e, confirmedMap.get(e.getId()), viewsMap.get(e.getId()),
-                        initiators.get(e.getId())))
+                .map(e -> EventMapper.entityToFullDto(
+                        e,
+                        confirmedMap.get(e.getId()),
+                        e.getRating(),                             // ✅ заменили views на rating
+                        initiators.get(e.getId())
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -498,13 +513,15 @@ public class EventServiceImpl implements EventService {
 
         Event savedEvent = eventRepository.save(event);
 
-        Map<Long, Long> viewsMap = getViews(List.of(savedEvent));
         Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(savedEvent));
         Map<Long, String> initiators = buildInitiatorNameMap(List.of(event));
 
-        return EventMapper
-                .entityToFullDto(event, confirmedMap.get(savedEvent.getId()), viewsMap.get(savedEvent.getId()),
-                        initiators.get(savedEvent.getId()));
+        return EventMapper.entityToFullDto(
+                event,
+                confirmedMap.get(savedEvent.getId()),
+                savedEvent.getRating(),                    // ✅ заменили views
+                initiators.get(savedEvent.getId())
+        );
     }
 
     // --- INTERNAL ---
@@ -514,16 +531,30 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getEventByIdInternal(Long eventId) {
         Event event = getEventById(eventId); // найдёт или кинет 404, если не существует
 
-        Map<Long, Long> viewsMap = getViews(List.of(event));
         Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
         Map<Long, String> initiators = buildInitiatorNameMap(List.of(event));
 
         return EventMapper.entityToFullDto(
                 event,
                 confirmedMap.get(event.getId()),
-                viewsMap.get(event.getId()),
+                event.getRating(),
                 initiators.get(event.getId())
         );
+    }
+
+    @Override
+    public List<EventShortDto> getEventsByIds(List<Long> ids) {
+        return eventRepository.findAllById(ids).stream()
+                .map(event -> {
+                    String initiatorName = userClient.getUserById(event.getInitiatorId()).getName();
+                    return EventMapper.toShortDto(
+                            event,
+                            0L,
+                            event.getRating(),
+                            initiatorName
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     private Map<Long, Long> getViews(List<Event> events) {
