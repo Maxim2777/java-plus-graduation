@@ -6,10 +6,22 @@ option java_multiple_files = true;
 option java_package = "ru.practicum.messages.proto";
 option java_outer_classname = "RecommendationProto";
 
-message RecommendationRequest {
-  int64 userId = 1;
+message UserPredictionsRequestProto {
+  int64 user_id = 1;
+  int32 max_results = 2;
 }
 
-message RecommendationResponse {
-  repeated int64 recommendedEventIds = 1;
+message SimilarEventsRequestProto {
+  int64 event_id = 1;
+  int64 user_id = 2;
+  int32 max_results = 3;
+}
+
+message InteractionsCountRequestProto {
+  repeated int64 event_id = 1;
+}
+
+message RecommendedEventProto {
+  int64 event_id = 1;
+  double score = 2;
 }

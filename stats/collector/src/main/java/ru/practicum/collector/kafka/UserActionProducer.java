@@ -2,7 +2,6 @@ package ru.practicum.collector.kafka;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import ru.practicum.recommendation.avro.UserAction;
@@ -12,13 +11,11 @@ import ru.practicum.recommendation.avro.UserAction;
 @RequiredArgsConstructor
 public class UserActionProducer {
 
-    private static final String TOPIC = "user.actions";
-
     private final KafkaTemplate<String, UserAction> kafkaTemplate;
+    private static final String TOPIC = "stats.user-actions.v1";
 
     public void send(UserAction action) {
-        log.info("Sending user action to Kafka: {}", action);
-        ProducerRecord<String, UserAction> record = new ProducerRecord<>(TOPIC, action);
-        kafkaTemplate.send(record);
+        log.info("Sending action to Kafka: {}", action);
+        kafkaTemplate.send(TOPIC, String.valueOf(action.getUserId()), action);
     }
 }

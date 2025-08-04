@@ -4,16 +4,20 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "similarities", uniqueConstraints = @UniqueConstraint(columnNames = {"eventId", "otherEventId"}))
-@Getter
-@Setter
+@IdClass(SimilarityKey.class)
+@Table(name = "similarities")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Similarity {
 
-    @EmbeddedId
-    private SimilarityKey key;
+    @Id
+    @Column(name = "event_a")
+    private Long eventA;
+
+    @Id
+    @Column(name = "event_b")
+    private Long eventB;
 
     private double score;
 }

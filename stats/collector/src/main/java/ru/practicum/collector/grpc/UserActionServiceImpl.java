@@ -1,19 +1,15 @@
 package ru.practicum.collector.grpc;
 
+import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import ru.practicum.messages.proto.UserActionControllerGrpc;
+import ru.practicum.messages.proto.UserActionProto;
+import ru.practicum.recommendation.avro.UserAction;
+import ru.practicum.recommendation.avro.ActionType;
 import ru.practicum.collector.kafka.UserActionProducer;
-import ru.practicum.recommendation.proto.UserActionControllerGrpc;
-import ru.practicum.recommendation.proto.UserActionRequest;
-import ru.practicum.recommendation.proto.UserActionResponse;
-import ru.practicum.recommendation.proto.ActionType;
-
-import ru.practicum.recommendation.avro.UserAction;        // Avro generated
-import ru.practicum.recommendation.avro.ActionType as AvroActionType; // Avro enum
-
-import java.time.Instant;
 
 @Slf4j
 @GrpcService
@@ -23,37 +19,33 @@ public class UserActionServiceImpl extends UserActionControllerGrpc.UserActionCo
     private final UserActionProducer producer;
 
     @Override
-    public void send(UserActionRequest request, StreamObserver<UserActionResponse> responseObserver) {
-        log.info("Received gRPC UserActionRequest: {}", request);
+    public void collectUserAction(UserActionProto request, StreamObserver<Empty> responseObserver) {
+        log.info("Received gRPC request: {}", request);
 
-        // ✅ Преобразуем gRPC enum → Avro enum
-        AvroActionType avroActionType = switch (request.getActionType()) {
-            case ACTION_VIEW -> AvroActionType.ACTION_VIEW;
-            case ACTION_REGISTER -> AvroActionType.ACTION_REGISTER;
-            case ACTION_LIKE -> AvroActionType.ACTION_LIKE;
-            default -> AvroActionType.ACTION_UNKNOWN;
-        };
-
-        // ✅ Сборка Avro-модели
         UserAction action = UserAction.newBuilder()
                 .setUserId(request.getUserId())
                 .setEventId(request.getEventId())
-                .setActionType(avroActionType)
-                .setTimestamp(Instant.ofEpochSecond(
-                        request.getTimestamp().getSeconds(),
-                        request.getTimestamp().getNanos()
-                ))
+                .setActionType(convertType(request.getActionType()))
+                .setTimestamp(
+                        java.time.Instant.ofEpochSecond(
+                                request.getTimestamp().getSeconds(),
+                                request.getTimestamp().getNanos()
+                        )
+                )
                 .build();
 
-        // ✅ Отправка в Kafka
         producer.send(action);
 
-        // ✅ Ответ клиенту
-        UserActionResponse response = UserActionResponse.newBuilder()
-                .setStatus("OK")
-                .build();
-
-        responseObserver.onNext(response);
+        responseObserver.onNext(Empty.getDefaultInstance());
         responseObserver.onCompleted();
+    }
+
+    private ActionType convertType(ru.practicum.messages.proto.ActionTypeProto protoType) {
+        return switch (protoType) {
+            case ACTION_VIEW -> ActionType.VIEW;
+            case ACTION_REGISTER -> ActionType.REGISTER;
+            case ACTION_LIKE -> ActionType.LIKE;
+            default -> ActionType.UNKNOWN;
+        };
     }
 }

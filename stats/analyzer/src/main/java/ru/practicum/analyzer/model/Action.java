@@ -5,24 +5,18 @@ import lombok.*;
 import ru.practicum.recommendation.avro.ActionType;
 
 @Entity
+@IdClass(ActionKey.class)
 @Table(name = "actions")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Action {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private Long userId;
 
+    @Id
     private Long eventId;
 
-    @Enumerated(EnumType.STRING)
-    private ActionType actionType;
-
-    private Long timestamp;
+    private int weight; // максимальный вес действия
 }

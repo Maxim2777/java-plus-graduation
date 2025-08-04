@@ -3,10 +3,15 @@ package ru.practicum.analyzer.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.analyzer.model.Action;
+import ru.practicum.analyzer.model.ActionKey;
 import ru.practicum.analyzer.repository.ActionRepository;
+import ru.practicum.recommendation.avro.ActionType;
+import ru.practicum.recommendation.avro.UserAction;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -15,21 +20,35 @@ public class ActionServiceImpl implements ActionService {
 
     private final ActionRepository actionRepository;
 
+    private final Map<ActionType, Integer> actionWeights = Map.of(
+            ActionType.VIEW, 1,
+            ActionType.REGISTER, 2,
+            ActionType.LIKE, 3
+    );
+
     @Override
-    public List<Long> findSortedEventIdsOfUser(Long userId, int maxResults) {
-        return actionRepository.findTopNByUserIdOrderByTimestampDesc(userId, maxResults)
-                .stream()
+    public void save(UserAction userAction) {
+        int newWeight = actionWeights.getOrDefault(userAction.getActionType(), 0);
+
+        Optional<Action> existing = actionRepository.findById(
+                new ActionKey(userAction.getUserId(), userAction.getEventId()));
+
+        if (existing.isEmpty() || newWeight > existing.get().getWeight()) {
+            Action updated = new Action();
+            updated.setUserId(userAction.getUserId());
+            updated.setEventId(userAction.getEventId());
+            updated.setWeight(newWeight);
+            actionRepository.save(updated);
+        }
+    }
+
+    @Override
+    public List<Long> findSortedEventIdsOfUser(long userId, int maxResults) {
+        return actionRepository.findAllByUserId(userId).stream()
+                .sorted(Comparator.comparingInt(Action::getWeight).reversed())
+                .limit(maxResults)
                 .map(Action::getEventId)
                 .collect(Collectors.toList());
     }
-
-    @Override
-    public List<Action> findActionsByEventIds(Set<Long> eventIds) {
-        return actionRepository.findByEventIdIn(eventIds);
-    }
-
-    @Override
-    public Set<Long> findEventIds(Long userId, Set<Long> eventIds) {
-        return actionRepository.findEventIdsByUserIdAndEventIds(userId, eventIds);
-    }
 }
+

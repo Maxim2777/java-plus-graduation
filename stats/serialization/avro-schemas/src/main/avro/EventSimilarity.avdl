@@ -1,0 +1,11 @@
+@namespace("ru.practicum.recommendation.avro")
+protocol EventSimilarityProtocol {
+
+	record EventSimilarity {
+		long eventA;
+		long eventB;
+		double score;
+		timestamp_ms timestamp;
+	}
+
+}
