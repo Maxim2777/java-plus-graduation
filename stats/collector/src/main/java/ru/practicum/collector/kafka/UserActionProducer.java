@@ -25,8 +25,6 @@ public class UserActionProducer {
     public void send(UserActionAvro action) {
         log.info("Sending action to Kafka: {}", action);
 
-        long timestampMs = action.getTimestamp().toEpochMilli(); // <-- ключевая строка
-
         ProducerRecord<Long, UserActionAvro> record = new ProducerRecord<>(
                 TOPIC,
                 null,             // partition (можно null)
