@@ -10,6 +10,7 @@ import ru.practicum.ewm.stats.avro.UserActionAvro;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -18,65 +19,80 @@ public class AggregatorServiceImpl implements AggregatorService {
 
     private final SimilarityProducer similarityProducer;
 
-    private final Map<Long, Map<Long, Integer>> weights = new HashMap<>();
-    private final Map<Long, Double> normSums = new HashMap<>();
-    private final Map<Long, Map<Long, Double>> similarityMatrix = new HashMap<>();
+    // eventId -> (userId -> weight)
+    private final Map<Long, Map<Long, Double>> eventUserWeights = new ConcurrentHashMap<>();
 
-    private final Map<ActionTypeAvro, Integer> actionWeights = Map.of(
-            ActionTypeAvro.VIEW, 1,
-            ActionTypeAvro.REGISTER, 2,
-            ActionTypeAvro.LIKE, 3
+    // eventId -> sum of all weights
+    private final Map<Long, Double> eventWeightSums = new ConcurrentHashMap<>();
+
+    // (eventA -> (eventB -> sum of min weights))
+    private final Map<Long, Map<Long, Double>> minWeightsSums = new ConcurrentHashMap<>();
+
+    private final Map<ActionTypeAvro, Double> actionWeights = Map.of(
+            ActionTypeAvro.VIEW, 0.4,
+            ActionTypeAvro.REGISTER, 0.8,
+            ActionTypeAvro.LIKE, 1.0
     );
 
     @Override
     public void handle(UserActionAvro action) {
         long eventId = action.getEventId();
         long userId = action.getUserId();
-        int weight = actionWeights.getOrDefault(action.getActionType(), 0);
+        Instant timestamp = action.getTimestamp();
 
-        weights.computeIfAbsent(eventId, e -> new HashMap<>());
-        Map<Long, Integer> userMap = weights.get(eventId);
-        Integer current = userMap.getOrDefault(userId, 0);
+        double newWeight = actionWeights.getOrDefault(action.getActionType(), 0.0);
 
-        if (weight <= current) return;
+        // Получаем текущий вес
+        Map<Long, Double> userWeights = eventUserWeights.computeIfAbsent(eventId, k -> new ConcurrentHashMap<>());
+        double currentWeight = userWeights.getOrDefault(userId, 0.0);
 
-        userMap.put(userId, weight);
-        recomputeSimilarity(eventId, userId, weight, action.getTimestamp());
-    }
+        if (currentWeight >= newWeight) return;
 
-    private void recomputeSimilarity(long eventId, long userId, int updatedWeight, Instant timestamp) {
-        normSums.put(eventId, weights.get(eventId).values().stream()
-                .mapToDouble(w -> w * w).sum());
+        // Обновляем вес пользователя
+        userWeights.put(userId, newWeight);
 
-        for (Map.Entry<Long, Map<Long, Integer>> entry : weights.entrySet()) {
-            long otherEvent = entry.getKey();
-            if (eventId == otherEvent) continue;
+        // Обновляем сумму весов
+        double oldSum = eventWeightSums.getOrDefault(eventId, 0.0);
+        double diff = newWeight - currentWeight;
+        eventWeightSums.put(eventId, oldSum + diff);
 
-            Map<Long, Integer> otherUsers = entry.getValue();
-            if (!otherUsers.containsKey(userId)) continue;
+        // Пересчёт схожести
+        for (long otherEventId : eventUserWeights.keySet()) {
+            if (eventId == otherEventId) continue;
 
-            int weightA = updatedWeight;
-            int weightB = otherUsers.get(userId);
+            long a = Math.min(eventId, otherEventId);
+            long b = Math.max(eventId, otherEventId);
 
-            long a = Math.min(eventId, otherEvent);
-            long b = Math.max(eventId, otherEvent);
+            double weightA = eventUserWeights.getOrDefault(eventId, new HashMap<>()).getOrDefault(userId, 0.0);
+            double weightB = eventUserWeights.getOrDefault(otherEventId, new HashMap<>()).getOrDefault(userId, 0.0);
 
-            similarityMatrix
-                    .computeIfAbsent(a, e -> new HashMap<>())
-                    .merge(b, Math.min(weightA, weightB) * 1.0, Double::sum);
+            if (weightB == 0.0) continue;
 
-            double numerator = similarityMatrix.get(a).get(b);
-            double denom = Math.sqrt(normSums.get(eventId) * normSums.get(otherEvent));
-            double score = denom == 0 ? 0 : numerator / denom;
+            // Обновляем сумму минимальных весов
+            Map<Long, Double> minSums = minWeightsSums.computeIfAbsent(a, k -> new ConcurrentHashMap<>());
+            double currentMinSum = minSums.getOrDefault(b, 0.0);
+            double oldMin = Math.min(currentWeight, weightB);
+            double newMin = Math.min(newWeight, weightB);
+            minSums.put(b, currentMinSum + (newMin - oldMin));
 
-            EventSimilarityAvro similarity = EventSimilarityAvro.newBuilder()
+            // Пересчитываем косинусную схожесть
+            double minSum = minSums.get(b);
+            double normA = eventWeightSums.getOrDefault(a, 0.0);
+            double normB = eventWeightSums.getOrDefault(b, 0.0);
+
+            double similarity = (normA > 0 && normB > 0)
+                    ? minSum / Math.sqrt(normA * normB)
+                    : 0.0;
+
+            // Создаём и отправляем сообщение
+            EventSimilarityAvro similarityAvro = EventSimilarityAvro.newBuilder()
                     .setEventA(a)
                     .setEventB(b)
-                    .setScore(score)
+                    .setScore(similarity)
                     .setTimestamp(timestamp)
                     .build();
 
-            similarityProducer.send(similarity);
+            similarityProducer.send(similarityAvro);
         }
     }
 }
