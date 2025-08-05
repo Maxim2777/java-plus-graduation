@@ -1,22 +1,19 @@
 spring:
   application:
-    name: aggregator  # ✅ Имя для Eureka
-
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: aggregator-group
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
-    properties:
-      schema.registry.url: http://localhost:8081
-      specific.avro.reader: true
+    name: aggregator
 
   cloud:
     config:
       enabled: false
     import-check:
       enabled: false
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: aggregator-group
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      value-deserializer: kafka.deserialization.UserActionDeserializer
 
 logging:
   level:
