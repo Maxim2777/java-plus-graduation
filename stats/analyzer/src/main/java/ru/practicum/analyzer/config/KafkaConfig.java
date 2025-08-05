@@ -9,7 +9,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 
-import ru.practicum.ewm.stats.avro.EventSimilarity;
+import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, EventSimilarity> similarityConsumerFactory() {
+    public ConsumerFactory<String, EventSimilarityAvro> similarityConsumerFactory() {
         Map<String, Object> props = baseConsumerProps("analyzer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class);
         props.put("specific.avro.reader", true);
@@ -43,8 +43,8 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, EventSimilarity> similarityKafkaListener() {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, EventSimilarity>();
+    public ConcurrentKafkaListenerContainerFactory<String, EventSimilarityAvro> similarityKafkaListener() {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, EventSimilarityAvro>();
         factory.setConsumerFactory(similarityConsumerFactory());
         return factory;
     }

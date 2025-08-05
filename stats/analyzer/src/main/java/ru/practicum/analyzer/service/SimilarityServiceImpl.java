@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.analyzer.model.Similarity;
 import ru.practicum.analyzer.repository.SimilarityRepository;
-import ru.practicum.ewm.stats.avro.EventSimilarity;
+import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 
 @Service
 @RequiredArgsConstructor
@@ -13,7 +13,7 @@ public class SimilarityServiceImpl implements SimilarityService {
     private final SimilarityRepository repository;
 
     @Override
-    public void save(EventSimilarity similarityAvro) {
+    public void save(EventSimilarityAvro similarityAvro) {
         Long a = similarityAvro.getEventA();
         Long b = similarityAvro.getEventB();
         if (a.equals(b)) return; // пропустить самих себя
