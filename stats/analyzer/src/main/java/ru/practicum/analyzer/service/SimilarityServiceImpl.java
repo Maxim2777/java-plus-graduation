@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.analyzer.model.Similarity;
 import ru.practicum.analyzer.repository.SimilarityRepository;
-import ru.practicum.recommendation.avro.EventSimilarity;
+import ru.practicum.ewm.stats.avro.EventSimilarity;
 
 @Service
 @RequiredArgsConstructor

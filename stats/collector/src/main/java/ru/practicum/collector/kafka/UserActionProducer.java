@@ -8,7 +8,7 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import ru.practicum.recommendation.avro.UserActionAvro;
+import ru.practicum.ewm.stats.avro.UserActionAvro;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.ByteArrayOutputStream;

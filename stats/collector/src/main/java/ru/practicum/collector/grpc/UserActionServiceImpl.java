@@ -9,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.practicum.grpc.stats.collector.UserActionControllerGrpc;
 import ru.practicum.messages.proto.UserActionProto;
-import ru.practicum.recommendation.avro.UserActionAvro;
-import ru.practicum.recommendation.avro.ActionTypeAvro;
+import ru.practicum.ewm.stats.avro.UserActionAvro;
+import ru.practicum.ewm.stats.avro.ActionTypeAvro;
 import ru.practicum.collector.kafka.UserActionProducer;
 
 import java.time.Instant;

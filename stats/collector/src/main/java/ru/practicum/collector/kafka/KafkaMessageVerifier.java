@@ -13,7 +13,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.stereotype.Component;
-import ru.practicum.recommendation.avro.UserActionAvro;
+import ru.practicum.ewm.stats.avro.UserActionAvro;
 
 import java.time.Duration;
 import java.util.HashMap;

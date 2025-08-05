@@ -9,8 +9,8 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 
-import ru.practicum.recommendation.avro.EventSimilarity;
-import ru.practicum.recommendation.avro.UserActionAvro;
+import ru.practicum.ewm.stats.avro.EventSimilarity;
+import ru.practicum.ewm.stats.avro.UserActionAvro;
 
 import java.util.HashMap;
 import java.util.Map;

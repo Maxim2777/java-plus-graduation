@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.analyzer.model.Action;
 import ru.practicum.analyzer.model.ActionKey;
 import ru.practicum.analyzer.repository.ActionRepository;
-import ru.practicum.recommendation.avro.ActionTypeAvro;
-import ru.practicum.recommendation.avro.UserActionAvro;
+import ru.practicum.ewm.stats.avro.ActionTypeAvro;
+import ru.practicum.ewm.stats.avro.UserActionAvro;
 
 import java.util.Comparator;
 import java.util.List;

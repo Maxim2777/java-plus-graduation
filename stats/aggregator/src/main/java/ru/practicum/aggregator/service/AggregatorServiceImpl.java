@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.aggregator.kafka.SimilarityProducer;
-import ru.practicum.recommendation.avro.ActionTypeAvro;
-import ru.practicum.recommendation.avro.EventSimilarity;
-import ru.practicum.recommendation.avro.UserActionAvro;
+import ru.practicum.ewm.stats.avro.ActionTypeAvro;
+import ru.practicum.ewm.stats.avro.EventSimilarity;
+import ru.practicum.ewm.stats.avro.UserActionAvro;
 
 import java.time.Instant;
 import java.util.*;

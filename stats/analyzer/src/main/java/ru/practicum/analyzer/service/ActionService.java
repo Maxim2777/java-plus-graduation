@@ -1,7 +1,6 @@
 package ru.practicum.analyzer.service;
 
-import ru.practicum.recommendation.avro.UserActionAvro;
-
+import ru.practicum.ewm.stats.avro.UserActionAvro;
 import java.util.List;
 
 public interface ActionService {
