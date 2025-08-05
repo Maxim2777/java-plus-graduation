@@ -9,6 +9,7 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import ru.practicum.recommendation.avro.UserActionAvro;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,17 +24,25 @@ public class UserActionProducer {
 
     public void send(UserActionAvro action) {
         log.info("Sending action to Kafka: {}", action);
-        log.info("Sending Avro as JSON: {}", avroToJson(action));
 
-        // ✅ Подробная проверка типа ключа, значения и схемы Avro
-        log.info("Kafka message classes → key: {}, value: {}, schema: {}",
-                ((Long) action.getEventId()).getClass().getName(),
-                action.getClass().getName(),
-                action.getSchema().toString(true));
+        long timestampMs = action.getTimestamp().toEpochMilli(); // <-- ключевая строка
 
-        kafkaTemplate.send(TOPIC, action.getEventId(), action);
+        ProducerRecord<Long, UserActionAvro> record = new ProducerRecord<>(
+                TOPIC,
+                null,             // partition (можно null)
+                action.getTimestamp().toEpochMilli(),     // <-- обязательно long
+                action.getEventId(),
+                action
+        );
+
+        kafkaTemplate.send(record).whenComplete((result, ex) -> {
+            if (ex == null) {
+                log.info("✅ Message sent to Kafka topic {} with offset {}", result.getRecordMetadata().topic(), result.getRecordMetadata().offset());
+            } else {
+                log.error("❌ Failed to send message to Kafka", ex);
+            }
+        });
     }
-
 
     // Преобразование Avro → JSON для логов
     private String avroToJson(UserActionAvro record) {
