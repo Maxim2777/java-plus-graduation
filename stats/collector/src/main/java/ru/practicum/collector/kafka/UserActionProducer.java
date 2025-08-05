@@ -18,14 +18,14 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class UserActionProducer {
 
-    private final KafkaTemplate<String, UserAction> kafkaTemplate;
+    private final KafkaTemplate<Long, UserAction> kafkaTemplate;
     private static final String TOPIC = "stats.user-actions.v1";
 
     public void send(UserAction action) {
         log.info("Sending action to Kafka: {}", action);
-        log.info("Sending Avro as JSON: {}", avroToJson(action)); // 👈 подробный лог
+        log.info("Sending Avro as JSON: {}", avroToJson(action)); // подробный лог
 
-        kafkaTemplate.send(TOPIC, String.valueOf(action.getUserId()), action);
+        kafkaTemplate.send(TOPIC, action.getEventId(), action); // ключ: Long (eventId)
     }
 
     // Преобразование Avro → JSON для логов

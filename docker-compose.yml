@@ -64,7 +64,7 @@ services:
     depends_on:
       - kafka
     environment:
-      SCHEMA_REGISTRY_HOST_NAME: localhost
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
     networks:
       - ewm-net
