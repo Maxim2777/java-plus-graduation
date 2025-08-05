@@ -1,17 +1,17 @@
 @namespace("ru.practicum.recommendation.avro")
 protocol UserActionProtocol {
 
-	enum ActionType {
+	enum ActionTypeAvro {
 		UNKNOWN,
 		VIEW,
 		REGISTER,
 		LIKE
 	}
 
-	record UserAction {
+	record UserActionAvro {
 		long userId;
 		long eventId;
-		ActionType actionType;
+		ActionTypeAvro actionType;
 		timestamp_ms timestamp;
 	}
 

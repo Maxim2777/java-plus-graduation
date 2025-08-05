@@ -3,7 +3,6 @@ package ru.practicum.collector.config;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongSerializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.*;
@@ -11,13 +10,13 @@ import org.springframework.kafka.core.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.practicum.recommendation.avro.UserAction;
+import ru.practicum.recommendation.avro.UserActionAvro;
 
 @Configuration
 public class KafkaConfig {
 
     @Bean
-    public ProducerFactory<Long, UserAction> producerFactory() {
+    public ProducerFactory<Long, UserActionAvro> producerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
@@ -28,7 +27,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<Long, UserAction> kafkaTemplate() {
+    public KafkaTemplate<Long, UserActionAvro> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }
