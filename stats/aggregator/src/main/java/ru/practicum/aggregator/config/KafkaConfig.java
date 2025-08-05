@@ -12,7 +12,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 
-import ru.practicum.ewm.stats.avro.EventSimilarity;
+import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 
 import java.util.HashMap;
@@ -43,7 +43,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ProducerFactory<String, EventSimilarity> producerFactory() {
+    public ProducerFactory<String, EventSimilarityAvro> producerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -53,7 +53,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, EventSimilarity> kafkaTemplate() {
+    public KafkaTemplate<String, EventSimilarityAvro> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }

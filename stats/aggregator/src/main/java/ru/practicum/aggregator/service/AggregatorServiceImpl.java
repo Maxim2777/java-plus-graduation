@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.aggregator.kafka.SimilarityProducer;
 import ru.practicum.ewm.stats.avro.ActionTypeAvro;
-import ru.practicum.ewm.stats.avro.EventSimilarity;
+import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 
 import java.time.Instant;
@@ -69,7 +69,7 @@ public class AggregatorServiceImpl implements AggregatorService {
             double denom = Math.sqrt(normSums.get(eventId) * normSums.get(otherEvent));
             double score = denom == 0 ? 0 : numerator / denom;
 
-            EventSimilarity similarity = EventSimilarity.newBuilder()
+            EventSimilarityAvro similarity = EventSimilarityAvro.newBuilder()
                     .setEventA(a)
                     .setEventB(b)
                     .setScore(score)
