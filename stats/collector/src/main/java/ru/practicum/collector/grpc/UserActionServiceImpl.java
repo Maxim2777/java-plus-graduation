@@ -50,7 +50,7 @@ public class UserActionServiceImpl extends UserActionControllerGrpc.UserActionCo
             case ACTION_VIEW -> ActionTypeAvro.VIEW;
             case ACTION_REGISTER -> ActionTypeAvro.REGISTER;
             case ACTION_LIKE -> ActionTypeAvro.LIKE;
-            default -> ActionTypeAvro.UNKNOWN;
+            default -> throw new IllegalArgumentException("There is no such type");
         };
     }
 }
