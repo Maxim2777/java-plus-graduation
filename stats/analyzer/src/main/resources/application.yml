@@ -1,6 +1,7 @@
 spring:
   application:
     name: analyzer
+
   cloud:
     config:
       enabled: false
@@ -14,12 +15,23 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
+    database: postgresql
     hibernate:
-      ddl-auto: none
-    show-sql: true
+      ddl-auto: update
     properties:
       hibernate:
+        format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  sql:
+    init:
+      mode: never
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: analyzer-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 eureka:
   instance:

@@ -1,6 +1,5 @@
 package ru.practicum.analyzer.config;
 
-import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -21,9 +20,9 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, UserActionAvro> userActionConsumerFactory() {
-        Map<String, Object> props = baseConsumerProps("analyzer");
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class);
-        props.put("specific.avro.reader", true);
+        Map<String, Object> props = baseConsumerProps("analyzer-user-actions");
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                kafka.deserialization.UserActionDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -36,9 +35,9 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, EventSimilarityAvro> similarityConsumerFactory() {
-        Map<String, Object> props = baseConsumerProps("analyzer");
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class);
-        props.put("specific.avro.reader", true);
+        Map<String, Object> props = baseConsumerProps("analyzer-similarity");
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                kafka.deserialization.EventSimilarityDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -54,7 +53,6 @@ public class KafkaConfig {
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put("schema.registry.url", "http://localhost:8081");
         return props;
     }
 }
