@@ -2,7 +2,6 @@ package ru.practicum.analyzer.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ru.practicum.recommendation.avro.ActionType;
 
 @Entity
 @IdClass(ActionKey.class)

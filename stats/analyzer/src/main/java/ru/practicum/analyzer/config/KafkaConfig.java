@@ -10,7 +10,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 
 import ru.practicum.recommendation.avro.EventSimilarity;
-import ru.practicum.recommendation.avro.UserAction;
+import ru.practicum.recommendation.avro.UserActionAvro;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Bean
-    public ConsumerFactory<String, UserAction> userActionConsumerFactory() {
+    public ConsumerFactory<String, UserActionAvro> userActionConsumerFactory() {
         Map<String, Object> props = baseConsumerProps("analyzer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class);
         props.put("specific.avro.reader", true);
@@ -28,8 +28,8 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, UserAction> userActionKafkaListener() {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, UserAction>();
+    public ConcurrentKafkaListenerContainerFactory<String, UserActionAvro> userActionKafkaListener() {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, UserActionAvro>();
         factory.setConsumerFactory(userActionConsumerFactory());
         return factory;
     }

@@ -13,7 +13,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 
 import ru.practicum.recommendation.avro.EventSimilarity;
-import ru.practicum.recommendation.avro.UserAction;
+import ru.practicum.recommendation.avro.UserActionAvro;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Bean
-    public ConsumerFactory<String, UserAction> consumerFactory() {
+    public ConsumerFactory<String, UserActionAvro> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "aggregator");
@@ -35,8 +35,8 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, UserAction> kafkaListenerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, UserAction> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, UserActionAvro> kafkaListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, UserActionAvro> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;

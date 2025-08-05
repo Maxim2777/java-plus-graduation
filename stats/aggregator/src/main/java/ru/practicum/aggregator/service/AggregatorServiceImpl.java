@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.aggregator.kafka.SimilarityProducer;
-import ru.practicum.recommendation.avro.ActionType;
+import ru.practicum.recommendation.avro.ActionTypeAvro;
 import ru.practicum.recommendation.avro.EventSimilarity;
-import ru.practicum.recommendation.avro.UserAction;
+import ru.practicum.recommendation.avro.UserActionAvro;
 
 import java.time.Instant;
 import java.util.*;
@@ -22,14 +22,14 @@ public class AggregatorServiceImpl implements AggregatorService {
     private final Map<Long, Double> normSums = new HashMap<>();
     private final Map<Long, Map<Long, Double>> similarityMatrix = new HashMap<>();
 
-    private final Map<ActionType, Integer> actionWeights = Map.of(
-            ActionType.VIEW, 1,
-            ActionType.REGISTER, 2,
-            ActionType.LIKE, 3
+    private final Map<ActionTypeAvro, Integer> actionWeights = Map.of(
+            ActionTypeAvro.VIEW, 1,
+            ActionTypeAvro.REGISTER, 2,
+            ActionTypeAvro.LIKE, 3
     );
 
     @Override
-    public void handle(UserAction action) {
+    public void handle(UserActionAvro action) {
         long eventId = action.getEventId();
         long userId = action.getUserId();
         int weight = actionWeights.getOrDefault(action.getActionType(), 0);

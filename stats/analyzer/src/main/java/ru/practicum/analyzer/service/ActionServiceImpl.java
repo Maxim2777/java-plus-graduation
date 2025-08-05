@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.analyzer.model.Action;
 import ru.practicum.analyzer.model.ActionKey;
 import ru.practicum.analyzer.repository.ActionRepository;
-import ru.practicum.recommendation.avro.ActionType;
-import ru.practicum.recommendation.avro.UserAction;
+import ru.practicum.recommendation.avro.ActionTypeAvro;
+import ru.practicum.recommendation.avro.UserActionAvro;
 
 import java.util.Comparator;
 import java.util.List;
@@ -20,14 +20,14 @@ public class ActionServiceImpl implements ActionService {
 
     private final ActionRepository actionRepository;
 
-    private final Map<ActionType, Integer> actionWeights = Map.of(
-            ActionType.VIEW, 1,
-            ActionType.REGISTER, 2,
-            ActionType.LIKE, 3
+    private final Map<ActionTypeAvro, Integer> actionWeights = Map.of(
+            ActionTypeAvro.VIEW, 1,
+            ActionTypeAvro.REGISTER, 2,
+            ActionTypeAvro.LIKE, 3
     );
 
     @Override
-    public void save(UserAction userAction) {
+    public void save(UserActionAvro userAction) {
         int newWeight = actionWeights.getOrDefault(userAction.getActionType(), 0);
 
         Optional<Action> existing = actionRepository.findById(
