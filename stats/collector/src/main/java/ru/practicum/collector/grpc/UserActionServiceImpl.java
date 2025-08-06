@@ -24,16 +24,16 @@ public class UserActionServiceImpl extends UserActionControllerGrpc.UserActionCo
 
     @Override
     public void collectUserAction(UserActionProto request, StreamObserver<Empty> responseObserver) {
-        log.info("📨 Received gRPC request: {}", request);
+        log.info(" Received gRPC request: {}", request);
 
         try {
             long seconds = request.getTimestamp().getSeconds();
             int nanos = request.getTimestamp().getNanos();
 
-            log.info("🕒 Parsed timestamp from proto: seconds = {}, nanos = {}", seconds, nanos);
+            log.info(" Parsed timestamp from proto: seconds = {}, nanos = {}", seconds, nanos);
 
             Instant instant = Instant.ofEpochSecond(seconds, nanos);
-            log.info("🕒 Converted Instant = {}", instant);
+            log.info(" Converted Instant = {}", instant);
 
             UserActionAvro action = UserActionAvro.newBuilder()
                     .setUserId(request.getUserId())
@@ -42,14 +42,14 @@ public class UserActionServiceImpl extends UserActionControllerGrpc.UserActionCo
                     .setTimestamp(instant)
                     .build();
 
-            log.info("📦 Built Avro object: {}", action);
+            log.info(" Built Avro object: {}", action);
 
             producer.send(action);
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
 
         } catch (Exception e) {
-            log.error("🔥 Failed to handle gRPC request", e);
+            log.error(" Failed to handle gRPC request", e);
 
             // Обернуть в gRPC статус с сообщением
             StatusRuntimeException statusEx = Status.INTERNAL
