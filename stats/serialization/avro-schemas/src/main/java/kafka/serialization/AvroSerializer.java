@@ -11,24 +11,25 @@ import org.apache.kafka.common.serialization.Serializer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Objects;
 
 @Slf4j
 public class AvroSerializer implements Serializer<SpecificRecordBase> {
+
     private final EncoderFactory encoderFactory = EncoderFactory.get();
     private BinaryEncoder encoder;
 
+    @Override
     public byte[] serialize(String topic, SpecificRecordBase data) {
+        if (data == null) {
+            return null;
+        }
+
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            byte[] result = null;
             encoder = encoderFactory.binaryEncoder(out, encoder);
-            if (Objects.nonNull(data)) {
-                DatumWriter<SpecificRecordBase> writer = new SpecificDatumWriter<>(data.getSchema());
-                writer.write(data, encoder);
-                encoder.flush();
-                result = out.toByteArray();
-            }
-            return result;
+            DatumWriter<SpecificRecordBase> writer = new SpecificDatumWriter<>(data.getSchema());
+            writer.write(data, encoder);
+            encoder.flush();
+            return out.toByteArray();
         } catch (IOException ex) {
             throw new SerializationException("Unable to serialize message for topic [" + topic + "]", ex);
         }
