@@ -25,3 +25,12 @@ message RecommendedEventProto {
   int64 event_id = 1;
   double score = 2;
 }
+
+message EventIdProto {
+  int64 event_id = 1;
+}
+
+message InteractionCountProto {
+  int64 event_id = 1;
+  int32 interaction_count = 2;
+}

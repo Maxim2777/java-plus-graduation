@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package stats.service.analyzer;
+package stats.service.dashboard;
 
 import "messages/recommendation.proto";
 
@@ -8,7 +8,6 @@ option java_multiple_files = true;
 option java_package = "ru.practicum.grpc.stats.analyzer";
 option java_outer_classname = "RecommendationServiceProto";
 
-// gRPC-сервис для получения рекомендаций
 service RecommendationsController {
 
   rpc GetRecommendationsForUser(
