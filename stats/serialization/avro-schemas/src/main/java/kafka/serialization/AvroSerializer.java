@@ -30,7 +30,7 @@ public class AvroSerializer implements Serializer<SpecificRecordBase> {
             }
             return result;
         } catch (IOException ex) {
-            throw new SerializationException("Ошибка сериализации данных для топика [" + topic + "]", ex);
+            throw new SerializationException("Unable to serialize message for topic [" + topic + "]", ex);
         }
     }
 }
