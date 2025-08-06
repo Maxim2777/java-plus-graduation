@@ -28,9 +28,9 @@ public class RecommendationServiceImpl implements RecommendationService {
         if (actions.isEmpty()) return Collections.emptyList();
 
         // Карта <eventId, weight> — только последние N (весомых) событий
-        Map<Long, Integer> userEventWeights = actions.stream()
-                .sorted(Comparator.comparingInt(Action::getWeight).reversed())
-                .limit(20) // пусть будет фиксированный буфер последних N
+        Map<Long, Double> userEventWeights = actions.stream()
+                .sorted(Comparator.comparingDouble(Action::getWeight).reversed())
+                .limit(20)
                 .collect(Collectors.toMap(
                         Action::getEventId,
                         Action::getWeight,
@@ -54,11 +54,11 @@ public class RecommendationServiceImpl implements RecommendationService {
 
             // найти: какой из пары — известный, какой — новый
             if (knownEvents.contains(a) && !knownEvents.contains(b)) {
-                int weight = userEventWeights.get(a);
+                double weight = userEventWeights.get(a);
                 numerator.merge(b, score * weight, Double::sum);
                 denominator.merge(b, score, Double::sum);
             } else if (knownEvents.contains(b) && !knownEvents.contains(a)) {
-                int weight = userEventWeights.get(b);
+                double weight = userEventWeights.get(b);
                 numerator.merge(a, score * weight, Double::sum);
                 denominator.merge(a, score, Double::sum);
             }

@@ -20,15 +20,15 @@ public class ActionServiceImpl implements ActionService {
 
     private final ActionRepository actionRepository;
 
-    private final Map<ActionTypeAvro, Integer> actionWeights = Map.of(
-            ActionTypeAvro.VIEW, 1,
-            ActionTypeAvro.REGISTER, 2,
-            ActionTypeAvro.LIKE, 3
+    private final Map<ActionTypeAvro, Double> actionWeights = Map.of(
+            ActionTypeAvro.VIEW, 0.4,
+            ActionTypeAvro.REGISTER, 0.8,
+            ActionTypeAvro.LIKE, 1.0
     );
 
     @Override
     public void save(UserActionAvro userAction) {
-        int newWeight = actionWeights.getOrDefault(userAction.getActionType(), 0);
+        double newWeight = actionWeights.getOrDefault(userAction.getActionType(), 0.0);
 
         Optional<Action> existing = actionRepository.findById(
                 new ActionKey(userAction.getUserId(), userAction.getEventId()));
@@ -45,10 +45,11 @@ public class ActionServiceImpl implements ActionService {
     @Override
     public List<Long> findSortedEventIdsOfUser(long userId, int maxResults) {
         return actionRepository.findAllByUserId(userId).stream()
-                .sorted(Comparator.comparingInt(Action::getWeight).reversed())
+                .sorted(Comparator.comparingDouble(Action::getWeight).reversed())
                 .limit(maxResults)
                 .map(Action::getEventId)
                 .collect(Collectors.toList());
     }
 }
+
 

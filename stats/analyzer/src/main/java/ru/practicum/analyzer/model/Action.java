@@ -17,5 +17,5 @@ public class Action {
     @Id
     private Long eventId;
 
-    private int weight; // максимальный вес действия
+    private double weight; // максимальный вес действия
 }
