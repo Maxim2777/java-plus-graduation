@@ -15,6 +15,8 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <practicum.version>0.0.1-SNAPSHOT</practicum.version>
+        <grpc.version>1.56.1</grpc.version>
     </properties>
 
     <dependencies>
@@ -22,7 +24,7 @@
         <dependency>
             <groupId>ru.practicum</groupId>
             <artifactId>stats-client</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${practicum.version}</version>
         </dependency>
 
         <!-- gRPC Client Starter (совместимая версия) -->
@@ -36,17 +38,17 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty-shaded</artifactId>
-            <version>1.56.1</version>
+            <version>${grpc.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
-            <version>1.56.1</version>
+            <version>${grpc.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
-            <version>1.56.1</version>
+            <version>${grpc.version}</version>
         </dependency>
 
 
@@ -54,13 +56,13 @@
         <dependency>
             <groupId>ru.practicum</groupId>
             <artifactId>proto-schemas</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${practicum.version}</version>
         </dependency>
 
         <dependency>
             <groupId>ru.practicum</groupId>
             <artifactId>common-module</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${practicum.version}</version>
         </dependency>
 
         <!-- QueryDSL -->
