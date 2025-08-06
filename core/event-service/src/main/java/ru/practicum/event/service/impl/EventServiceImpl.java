@@ -360,7 +360,6 @@ public class EventServiceImpl implements EventService {
         }
 
         return switch (sort) {
-            // "VIEWS" теперь сортирует по rating, а не просмотрам
             case "VIEWS" -> eventShorts
                     .stream()
                     .sorted(Comparator.comparingDouble(EventShortDto::getRating).reversed())

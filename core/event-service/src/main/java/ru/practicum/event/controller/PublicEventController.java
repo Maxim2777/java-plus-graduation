@@ -9,7 +9,6 @@ import ru.practicum.event.service.EventService;
 import ru.practicum.ewm.main.dto.EventFullDto;
 import ru.practicum.ewm.main.dto.EventShortDto;
 import ru.practicum.ewm.main.dto.params.EventParamsPublic;
-import ru.practicum.ewm.main.grpc.client.AnalyzerClient;
 import ru.practicum.ewm.main.grpc.client.CollectorClient;
 import ru.practicum.messages.proto.ActionTypeProto;
 
@@ -24,7 +23,6 @@ public class PublicEventController {
 
     private final EventService eventService;
     private final CollectorClient collectorClient;
-    private final AnalyzerClient analyzerClient;
 
     @GetMapping
     public ResponseEntity<List<EventShortDto>> getEvents(@ModelAttribute EventParamsPublic params,
