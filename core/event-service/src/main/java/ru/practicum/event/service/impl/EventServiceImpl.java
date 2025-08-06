@@ -381,7 +381,7 @@ public class EventServiceImpl implements EventService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Event is not published");
         }
 
-        // ⬇️ Отправка действия "просмотр"
+        // Отправка действия "просмотр"
         try {
             String userIdHeader = request.getHeader("X-EWM-USER-ID");
             if (userIdHeader != null) {
