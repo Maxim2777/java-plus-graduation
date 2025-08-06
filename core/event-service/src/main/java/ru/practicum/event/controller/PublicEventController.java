@@ -12,7 +12,6 @@ import ru.practicum.ewm.main.dto.params.EventParamsPublic;
 import ru.practicum.ewm.main.grpc.client.AnalyzerClient;
 import ru.practicum.ewm.main.grpc.client.CollectorClient;
 import ru.practicum.messages.proto.ActionTypeProto;
-import ru.practicum.messages.proto.RecommendedEventProto;
 
 import java.time.Instant;
 import java.util.List;
@@ -36,11 +35,13 @@ public class PublicEventController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EventFullDto> getEventById(@PathVariable Long id,
-                                                     @RequestHeader("X-EWM-USER-ID") Long userId,
+                                                     @RequestHeader(value = "X-EWM-USER-ID", required = false) Long userId,
                                                      HttpServletRequest request) {
         log.info("PublicEventController - Get public event. id: {}", id);
 
-        collectorClient.sendAction(userId, id, ActionTypeProto.ACTION_VIEW, Instant.now());
+        if (userId != null) {
+            collectorClient.sendAction(userId, id, ActionTypeProto.ACTION_VIEW, Instant.now());
+        }
 
         return ResponseEntity.ok(eventService.getEventById(id, request));
     }

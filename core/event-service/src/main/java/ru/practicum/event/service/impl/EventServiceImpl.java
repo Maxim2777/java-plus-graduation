@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,18 +30,22 @@ import ru.practicum.ewm.main.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.main.dto.params.EventParamsAdmin;
 import ru.practicum.ewm.main.dto.params.EventParamsPublic;
 import ru.practicum.ewm.main.dto.params.UserParamsAdmin;
+import ru.practicum.ewm.main.grpc.client.CollectorClient;
 import ru.practicum.ewm.main.model.enums.EventState;
 import ru.practicum.ewm.main.model.enums.ParticipationRequestStatus;
 import ru.practicum.ewm.main.model.enums.RequestStatus;
 import ru.practicum.ewm.main.exception.ConflictException;
 import ru.practicum.ewm.main.exception.NotFoundException;
 import ru.practicum.ewm.main.exception.ValidationException;
+import ru.practicum.messages.proto.ActionTypeProto;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -52,6 +57,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserClient userClient;
     private final RequestInternalClient requestInternalClient;
+    private final CollectorClient collectorClient;
 
     // --- PRIVATE API ---
 
@@ -376,13 +382,24 @@ public class EventServiceImpl implements EventService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Event is not published");
         }
 
+        // ⬇️ Отправка действия "просмотр"
+        try {
+            String userIdHeader = request.getHeader("X-EWM-USER-ID");
+            if (userIdHeader != null) {
+                long userId = Long.parseLong(userIdHeader);
+                collectorClient.sendAction(userId, eventId, ActionTypeProto.ACTION_VIEW, Instant.now());
+            }
+        } catch (Exception e) {
+            log.warn("Failed to send view to collector", e);
+        }
+
         Map<Long, Long> confirmedMap = getConfirmedRequests(List.of(event));
         Map<Long, String> initiators = buildInitiatorNameMap(List.of(event));
 
         return EventMapper.entityToFullDto(
                 event,
                 confirmedMap.get(event.getId()),
-                event.getRating(),                       // ✅ заменили views
+                event.getRating(),
                 initiators.get(event.getId())
         );
     }
