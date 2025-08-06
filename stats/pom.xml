@@ -16,6 +16,7 @@
         <module>analyzer</module>
         <module>aggregator</module>
         <module>serialization</module>
+        <module>stats-client</module>
     </modules>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
