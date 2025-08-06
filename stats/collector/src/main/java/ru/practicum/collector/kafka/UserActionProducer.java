@@ -35,9 +35,9 @@ public class UserActionProducer {
 
         kafkaTemplate.send(record).whenComplete((result, ex) -> {
             if (ex == null) {
-                log.info("✅ Message sent to Kafka topic {} with offset {}", result.getRecordMetadata().topic(), result.getRecordMetadata().offset());
+                log.info(" Message sent to Kafka topic {} with offset {}", result.getRecordMetadata().topic(), result.getRecordMetadata().offset());
             } else {
-                log.error("❌ Failed to send message to Kafka", ex);
+                log.error(" Failed to send message to Kafka", ex);
             }
         });
     }

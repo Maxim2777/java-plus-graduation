@@ -26,57 +26,57 @@
             <version>7.5.3</version>
         </dependency>
 
-        <!-- 📦 Avro-схемы (модель UserActionAvro) -->
+        <!-- Avro-схемы (модель UserActionAvro) -->
         <dependency>
             <groupId>ru.practicum</groupId>
             <artifactId>avro-schemas</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!-- 🧠 Spring Kafka (для получения сообщений) -->
+        <!-- Spring Kafka (для получения сообщений) -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
         </dependency>
 
-        <!-- 🛠️ Spring Boot Core -->
+        <!-- Spring Boot Core -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- 📊 Spring Boot Actuator (метрики, здоровье) -->
+        <!-- Spring Boot Actuator (метрики, здоровье) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- ☁️ Spring Cloud Config Client -->
+        <!-- Spring Cloud Config Client -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
 
-        <!-- ☁️ Eureka Client -->
+        <!-- Eureka Client -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
-        <!-- 🔁 Spring Retry -->
+        <!-- Spring Retry -->
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
         </dependency>
 
-        <!-- ✅ Lombok -->
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- ✅ Jakarta Annotations -->
+        <!-- Jakarta Annotations -->
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
@@ -94,7 +94,7 @@
 
     <build>
         <plugins>
-            <!-- ⚙️ Плагин Spring Boot для сборки jar -->
+            <!-- Плагин Spring Boot для сборки jar -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

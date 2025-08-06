@@ -45,16 +45,4 @@ public class PublicEventController {
 
         return ResponseEntity.ok(eventService.getEventById(id, request));
     }
-
-/*    @GetMapping("/recommendations")
-    public ResponseEntity<List<EventShortDto>> getRecommendedEvents(
-            @RequestHeader("X-EWM-USER-ID") Long userId) {
-
-        List<Long> recommendedIds = analyzerClient.getRecommendations(userId, 10)
-                .map(RecommendedEventProto::getEventId)
-                .toList();
-
-        List<EventShortDto> recommendedEvents = eventService.getEventsByIds(recommendedIds);
-        return ResponseEntity.ok(recommendedEvents);
-    }*/
 }

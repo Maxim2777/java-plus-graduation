@@ -178,7 +178,7 @@ public class EventServiceImpl implements EventService {
         return EventMapper.entityToFullDto(
                 event,
                 confirmedMap.get(event.getId()),
-                event.getRating(),                    // ✅ заменили views на rating
+                event.getRating(),                    // заменили views на rating
                 userDto.getName()
         );
     }
@@ -350,7 +350,7 @@ public class EventServiceImpl implements EventService {
                 .map(e -> EventMapper.toShortDto(
                         e,
                         confirmedMap.getOrDefault(e.getId(), 0L),
-                        e.getRating(), // ✅ используем рейтинг
+                        e.getRating(), // используем рейтинг
                         initiators.getOrDefault(e.getId(), null)
                 ))
                 .collect(Collectors.toList());
@@ -363,7 +363,7 @@ public class EventServiceImpl implements EventService {
             // "VIEWS" теперь сортирует по rating, а не просмотрам
             case "VIEWS" -> eventShorts
                     .stream()
-                    .sorted(Comparator.comparingDouble(EventShortDto::getRating).reversed()) // ✅
+                    .sorted(Comparator.comparingDouble(EventShortDto::getRating).reversed())
                     .collect(Collectors.toList());
             case "EVENT_DATE" -> eventShorts
                     .stream()
@@ -462,7 +462,7 @@ public class EventServiceImpl implements EventService {
                 .map(e -> EventMapper.entityToFullDto(
                         e,
                         confirmedMap.get(e.getId()),
-                        e.getRating(),                             // ✅ заменили views на rating
+                        e.getRating(),                             // заменили views на rating
                         initiators.get(e.getId())
                 ))
                 .collect(Collectors.toList());
@@ -518,7 +518,7 @@ public class EventServiceImpl implements EventService {
         return EventMapper.entityToFullDto(
                 event,
                 confirmedMap.get(savedEvent.getId()),
-                savedEvent.getRating(),                    // ✅ заменили views
+                savedEvent.getRating(),                    // заменили views
                 initiators.get(savedEvent.getId())
         );
     }
