@@ -58,4 +58,7 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @Column(name = "rating", nullable = false)
+    private double rating;
 }

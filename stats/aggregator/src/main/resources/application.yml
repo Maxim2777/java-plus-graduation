@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: aggregator
+
+  cloud:
+    config:
+      enabled: false
+    import-check:
+      enabled: false
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: aggregator-group
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      value-deserializer: kafka.deserialization.UserActionDeserializer
+
+logging:
+  level:
+    root: INFO
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.uuid}
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka

@@ -30,7 +30,7 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventShortDto toShortDto(Event event, long confirmed, long views, String userName) {
+    public static EventShortDto toShortDto(Event event, long confirmed, double rating, String userName) {
         return EventShortDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -40,11 +40,11 @@ public class EventMapper {
                 .eventDate(event.getEventDate())
                 .initiator(new UserShortDto(event.getInitiatorId(), userName))
                 .confirmedRequests(confirmed)
-                .views(views)
+                .rating(rating)
                 .build();
     }
 
-    public static EventFullDto entityToFullDto(Event event, long confirmed, long views, String userName) {
+    public static EventFullDto entityToFullDto(Event event, long confirmed, double rating, String userName) {
         return EventFullDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -61,7 +61,7 @@ public class EventMapper {
                 .location(new LocationDto(event.getLocation().getLat(), event.getLocation().getLon()))
                 .initiator(new UserShortDto(event.getInitiatorId(), userName))
                 .confirmedRequests(confirmed)
-                .views(views)
+                .rating(rating)
                 .build();
     }
 
@@ -69,7 +69,7 @@ public class EventMapper {
         CategoryDto category = new CategoryDto(event.getCategory().getId(), "Category Name");
         UserShortDto initiator = new UserShortDto(event.getInitiatorId(), "User Name");
         long confirmedRequests = 0L;
-        long views = 0L;
+        double rating = 0L;
 
         return EventShortDto.builder()
                 .id(event.getId())
@@ -80,7 +80,7 @@ public class EventMapper {
                 .initiator(initiator)
                 .paid(event.isPaid())
                 .title(event.getTitle())
-                .views(views)
+                .rating(rating)
                 .build();
     }
 }
